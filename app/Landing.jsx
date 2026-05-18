@@ -400,15 +400,7 @@ const STYLE = `
   @media (max-width: 720px){
     .lp-root .wrap{ padding: 0 20px; }
 
-    .lp-root nav.top .row{
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      align-items: center;
-      gap: 8px;
-      padding: 14px 0;
-    }
-    .lp-root nav.top .row > a{ grid-column: 2; justify-self: center; }
-    .lp-root nav.top .row > .cta{ grid-column: 3; justify-self: end; }
+    .lp-root nav.top .row{ padding: 14px 0; gap: 12px; }
     .lp-root nav.top .cta{ gap: 8px; }
     .lp-root nav.top .cta .btn.solid{ display: none; }
     .lp-root nav.top .cta .btn{ padding: 8px 14px; font-size: 13px; }
