@@ -22,11 +22,28 @@ const STYLE = `
     --card: #ffffff;
     --hl: #0c0c0c;
     --hl-fg: #ffffff;
+    --shadow-card: 0 1px 0 rgba(0,0,0,.02), 0 24px 60px -32px rgba(0,0,0,.18);
+    --shadow-card-hover: 0 12px 32px -16px rgba(0,0,0,.18);
     --sans: var(--font-manrope), -apple-system, BlinkMacSystemFont, sans-serif;
     --mono: var(--font-jetbrains-mono), ui-monospace, Menlo, monospace;
     --tk-logo-mute: var(--mute);
     background: var(--bg); color: var(--ink);
     font-family: var(--sans);
+  }
+  :root[data-theme="dark"] .lp-root{
+    --bg: #0c0c0c;
+    --ink: #f5f3ee;
+    --ink-2: #d6d3cc;
+    --mute: #8d8a82;
+    --mute-2: #4a4844;
+    --line: #f5f3ee;
+    --line-2: #232220;
+    --paper: #161513;
+    --card: #15140f;
+    --hl: #f5f3ee;
+    --hl-fg: #0c0c0c;
+    --shadow-card: 0 1px 0 rgba(255,255,255,.03), 0 24px 60px -32px rgba(0,0,0,.7);
+    --shadow-card-hover: 0 12px 32px -16px rgba(0,0,0,.7);
   }
   .lp-root .wrap{ max-width:1140px; margin:0 auto; padding:0 36px; }
 
@@ -83,7 +100,7 @@ const STYLE = `
   .lp-root .demo{
     margin-top: 64px; border:1px solid var(--line-2); border-radius:18px;
     background:var(--card); overflow:hidden;
-    box-shadow: 0 1px 0 rgba(0,0,0,.02), 0 24px 60px -32px rgba(0,0,0,.18);
+    box-shadow: var(--shadow-card);
   }
   .lp-root .demo-head{
     display:flex; align-items:center; justify-content:space-between;
@@ -162,7 +179,7 @@ const STYLE = `
     padding: 22px; display:flex; flex-direction:column; gap:16px; position:relative;
     transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
   }
-  .lp-root .card:hover{ transform: translateY(-2px); border-color: var(--ink); box-shadow: 0 12px 32px -16px rgba(0,0,0,.18); }
+  .lp-root .card:hover{ transform: translateY(-2px); border-color: var(--ink); box-shadow: var(--shadow-card-hover); }
   .lp-root .card .top{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
   .lp-root .card .glyph{
     width:44px; height:44px; border-radius:11px; background:var(--paper);
@@ -304,18 +321,18 @@ const STYLE = `
     font-size: clamp(48px, 7vw, 92px); letter-spacing: -0.035em; line-height: 0.98;
     margin: 0 auto 24px; max-width: 14ch; text-wrap: balance;
   }
-  .lp-root section.cta-section .lede{ color: rgba(255,255,255,.7); max-width: 540px; margin: 0 auto 40px; }
+  .lp-root section.cta-section .lede{ color: color-mix(in oklab, currentColor 70%, transparent); max-width: 540px; margin: 0 auto 40px; }
   .lp-root .signup{
     max-width: 480px; margin: 0 auto; display:flex; gap: 8px;
-    border:1px solid rgba(255,255,255,.25); padding: 6px; border-radius: 999px;
-    background: rgba(255,255,255,.04); transition: border-color .15s ease;
+    border:1px solid color-mix(in oklab, currentColor 25%, transparent); padding: 6px; border-radius: 999px;
+    background: color-mix(in oklab, currentColor 4%, transparent); transition: border-color .15s ease;
   }
-  .lp-root .signup:focus-within{ border-color: rgba(255,255,255,.8); }
+  .lp-root .signup:focus-within{ border-color: color-mix(in oklab, currentColor 80%, transparent); }
   .lp-root .signup input{
     flex:1; background: transparent; border:0; outline:0;
     color: var(--bg); font-family: var(--sans); font-size: 15px; padding: 12px 18px;
   }
-  .lp-root .signup input::placeholder{ color: rgba(255,255,255,.4); }
+  .lp-root .signup input::placeholder{ color: color-mix(in oklab, currentColor 40%, transparent); }
   .lp-root .signup button{
     background: var(--bg); color: var(--ink); border:0;
     padding: 12px 22px; border-radius: 999px;
@@ -324,30 +341,132 @@ const STYLE = `
     transition: transform .15s ease;
   }
   .lp-root .signup button:hover{ transform: translateX(2px); }
-  .lp-root .cta-foot{ margin-top: 22px; font-family: var(--mono); font-size:12px; color: rgba(255,255,255,.5); }
+  .lp-root .cta-foot{ margin-top: 22px; font-family: var(--mono); font-size:12px; color: color-mix(in oklab, currentColor 50%, transparent); }
 
   /* footer */
   .lp-root footer{ background: var(--ink); color: var(--bg); padding: 60px 0 40px; }
   .lp-root footer .row{ display:grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 32px; }
   @media (max-width: 800px){ .lp-root footer .row{ grid-template-columns: 1fr 1fr; } }
-  .lp-root footer .col h4{ margin:0 0 18px; font-size: 12px; font-family: var(--mono); text-transform: uppercase; letter-spacing: .08em; color: rgba(255,255,255,.5); font-weight:500; }
+  .lp-root footer .col h4{ margin:0 0 18px; font-size: 12px; font-family: var(--mono); text-transform: uppercase; letter-spacing: .08em; color: color-mix(in oklab, currentColor 50%, transparent); font-weight:500; }
   .lp-root footer .col ul{ list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:10px; }
-  .lp-root footer .col ul a{ font-size:14px; color: rgba(255,255,255,.85); }
+  .lp-root footer .col ul a{ font-size:14px; color: color-mix(in oklab, currentColor 85%, transparent); }
   .lp-root footer .col ul a:hover{ color: var(--bg); text-decoration: underline; text-underline-offset: 4px; }
-  .lp-root footer .tag-line{ margin-top: 16px; max-width: 280px; color: rgba(255,255,255,.6); font-size: 14px; line-height: 1.5; }
+  .lp-root footer .tag-line{ margin-top: 16px; max-width: 280px; color: color-mix(in oklab, currentColor 60%, transparent); font-size: 14px; line-height: 1.5; }
   .lp-root footer .legal{
     margin-top: 56px; padding-top: 24px;
-    border-top:1px solid rgba(255,255,255,.12);
+    border-top:1px solid color-mix(in oklab, currentColor 12%, transparent);
     display:flex; justify-content:space-between; align-items:center;
-    font-family: var(--mono); font-size: 11px; color: rgba(255,255,255,.5);
+    font-family: var(--mono); font-size: 11px; color: color-mix(in oklab, currentColor 50%, transparent);
     flex-wrap:wrap; gap: 16px;
   }
-  .lp-root footer { --tk-logo-mute: rgba(255,255,255,.5); }
+  .lp-root footer { --tk-logo-mute: color-mix(in oklab, currentColor 50%, transparent); }
+
+  /* theme toggle */
+  .lp-root .theme-toggle{
+    width:38px; height:38px; flex:0 0 auto;
+    display:inline-grid; place-items:center;
+    border:1px solid var(--line-2); border-radius:999px;
+    background:transparent; color:var(--ink); cursor:pointer;
+    transition: border-color .15s ease, background .15s ease, transform .15s ease;
+  }
+  .lp-root .theme-toggle:hover{ border-color:var(--ink); background:var(--paper); }
+  .lp-root .theme-toggle:active{ transform: scale(.94); }
+  .lp-root .theme-toggle svg{ width:16px; height:16px; display:block; }
+  .lp-root .theme-toggle .sun{ display:none; }
+  .lp-root .theme-toggle .moon{ display:block; }
+  :root[data-theme="dark"] .lp-root .theme-toggle .sun{ display:block; }
+  :root[data-theme="dark"] .lp-root .theme-toggle .moon{ display:none; }
 
   /* mobile nav tweak */
   @media (max-width: 900px){
     .lp-root nav.top ul{ display:none; }
     .lp-root nav.top .cta .btn:first-child{ display:none; }
+  }
+
+  /* ── mobile adaptation ───────────────────────────────────────────── */
+  @media (max-width: 720px){
+    .lp-root .wrap{ padding: 0 20px; }
+
+    .lp-root nav.top .row{ padding: 14px 0; gap: 12px; }
+    .lp-root nav.top .cta{ gap: 8px; }
+    .lp-root nav.top .cta .btn{ padding: 9px 14px; font-size: 13px; }
+
+    .lp-root header.hero{ padding: 48px 0 64px; }
+    .lp-root .eyebrow{ margin-bottom: 22px; font-size: 11px; }
+    .lp-root h1.title{
+      font-size: clamp(38px, 11vw, 64px);
+      line-height: 1.02; letter-spacing: -0.028em;
+      margin: 0 0 20px;
+    }
+    .lp-root h1.title em{ padding: 0 8px; margin: 0 -1px; }
+    .lp-root .lede{ font-size: 17px; margin-bottom: 28px; }
+    .lp-root .hero-ctas{ gap: 10px; }
+    .lp-root .hero-ctas .btn{ padding: 12px 18px; font-size: 14px; }
+    .lp-root .hero-note{ flex-basis: 100%; margin-left: 2px; }
+
+    .lp-root .demo{ margin-top: 40px; border-radius: 14px; }
+    .lp-root .demo-head{ padding: 11px 14px; font-size: 11px; gap: 10px; }
+    .lp-root .demo-head .dots span{ width:7px; height:7px; }
+    .lp-root .demo-body{ padding: 18px 16px 20px; font-size: 15px; gap: 12px; }
+    .lp-root .demo-q{ font-size: 14px; max-width: 88%; }
+    .lp-root .demo-a{ font-size: 13.5px; }
+    .lp-root .demo-meta{ padding: 10px 14px; font-size: 10.5px; gap: 12px; }
+
+    .lp-root .trust{ margin-top: 60px; padding: 18px 0; }
+    .lp-root .trust .row{ gap: 16px; }
+    .lp-root .trust .logos{ gap: 20px; }
+    .lp-root .trust .logos span{ font-size: 15px; }
+    .lp-root .trust .logos span.mono{ font-size: 13px; }
+
+    .lp-root section{ padding: 64px 0; }
+    .lp-root section h2{ font-size: clamp(30px, 7.5vw, 44px); margin: 0 0 14px; }
+    .lp-root section .lede{ margin-bottom: 36px; }
+    .lp-root .section-head{ margin-bottom: 32px; }
+
+    .lp-root .cat-controls{ gap: 6px; margin-bottom: 22px; }
+    .lp-root .cat-controls button{ padding: 7px 11px; font-size: 11px; }
+    .lp-root .cat-controls .count{ flex-basis: 100%; margin-left: 0; margin-top: 4px; }
+    .lp-root .grid{ gap: 12px; }
+    .lp-root .card{ padding: 18px; gap: 14px; border-radius: 14px; }
+    .lp-root .card h3{ font-size: 18px; }
+    .lp-root .card .glyph{ width: 40px; height: 40px; }
+
+    .lp-root .step{ padding: 28px 22px 30px; min-height: 0; }
+
+    .lp-root .price-card{ padding: 26px; border-radius: 14px; }
+    .lp-root .price-card .big{ font-size: 52px; }
+    .lp-root .price-card .ribbon{ top: 20px; right: 20px; font-size: 10px; padding: 3px 8px; }
+
+    .lp-root .quote{ padding: 22px; border-radius: 14px; }
+    .lp-root .quote .text{ font-size: 16px; }
+
+    .lp-root .faq{ gap: 28px; }
+    .lp-root .faq .left h2{ position: static; }
+    .lp-root .faq summary{ font-size: 17px; gap: 12px; }
+    .lp-root .faq details{ padding: 18px 0; }
+    .lp-root .faq details p{ font-size: 14.5px; margin-top: 12px; }
+
+    .lp-root section.cta-section{ padding: 72px 0; border-radius: 22px 22px 0 0; margin-top: 24px; }
+    .lp-root section.cta-section h2{ font-size: clamp(34px, 9.5vw, 56px); margin-bottom: 18px; }
+    .lp-root section.cta-section .lede{ margin-bottom: 28px; font-size: 16px; }
+    .lp-root .signup{ flex-direction: column; gap: 6px; padding: 8px; border-radius: 18px; }
+    .lp-root .signup input{ padding: 10px 14px; font-size: 14px; text-align: center; }
+    .lp-root .signup button{ width: 100%; justify-content: center; padding: 11px 18px; }
+
+    .lp-root footer{ padding: 44px 0 32px; }
+    .lp-root footer .row{ gap: 28px 20px; }
+    .lp-root footer .legal{ margin-top: 36px; flex-direction: column; align-items: flex-start; gap: 8px; text-align: left; }
+  }
+
+  @media (max-width: 420px){
+    .lp-root .wrap{ padding: 0 16px; }
+    .lp-root nav.top .row{ gap: 8px; }
+    .lp-root nav.top .cta .btn{ padding: 8px 12px; font-size: 12.5px; }
+    .lp-root .theme-toggle{ width: 34px; height: 34px; }
+    .lp-root h1.title{ font-size: clamp(34px, 10.5vw, 48px); }
+    .lp-root .trust .logos{ gap: 14px; }
+    .lp-root .trust .logos span{ font-size: 14px; }
+    .lp-root footer .row{ grid-template-columns: 1fr; }
   }
 `;
 
@@ -454,6 +573,31 @@ function DemoTypewriter() {
   );
 }
 
+function ThemeToggle() {
+  const [theme, setTheme] = useState(null);
+  useEffect(() => {
+    setTheme(document.documentElement.dataset.theme || "light");
+  }, []);
+  const toggle = () => {
+    const next = (document.documentElement.dataset.theme || "light") === "dark" ? "light" : "dark";
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem("tokenstok-theme", next); } catch {}
+    setTheme(next);
+  };
+  const label = theme === "dark" ? "Включить светлую тему" : "Включить тёмную тему";
+  return (
+    <button type="button" className="theme-toggle" onClick={toggle} aria-label={label} title={label}>
+      <svg className="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>
+      </svg>
+      <svg className="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="4"/>
+        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+      </svg>
+    </button>
+  );
+}
+
 export function Landing() {
   return (
     <>
@@ -462,7 +606,7 @@ export function Landing() {
         {/* NAV */}
         <nav className="top">
           <div className="wrap row">
-            <a href="#"><Logo tag="v1.0 · beta"/></a>
+            <a href="#"><Logo tag="pre-alpha"/></a>
             <ul>
               <li><a href="#catalog">Модели</a></li>
               <li><a href="#how">Как работает</a></li>
@@ -472,6 +616,7 @@ export function Landing() {
             </ul>
             <div className="cta">
               <a href="#" className="btn">Войти</a>
+              <ThemeToggle/>
               <a href="#" className="btn solid">Попробовать <span className="arr">→</span></a>
             </div>
           </div>
