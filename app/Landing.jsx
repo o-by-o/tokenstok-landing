@@ -362,21 +362,34 @@ const STYLE = `
   }
   .lp-root footer { --tk-logo-mute: color-mix(in oklab, currentColor 50%, transparent); }
 
-  /* theme toggle */
+  /* theme toggle — floating pill, bottom-right */
   .lp-root .theme-toggle{
-    width:38px; height:38px; flex:0 0 auto;
-    display:inline-grid; place-items:center;
-    border:1px solid var(--line-2); border-radius:999px;
-    background:transparent; color:var(--ink); cursor:pointer;
-    transition: border-color .15s ease, background .15s ease, transform .15s ease;
+    position: fixed;
+    right: max(20px, env(safe-area-inset-right));
+    bottom: max(20px, env(safe-area-inset-bottom));
+    z-index: 60;
+    width: 46px; height: 46px;
+    display: grid; place-items: center;
+    border: 1px solid var(--ink);
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--card) 88%, transparent);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    color: var(--ink); cursor: pointer;
+    box-shadow: var(--shadow-card-hover);
+    transition: transform .15s ease, background .15s ease;
   }
-  .lp-root .theme-toggle:hover{ border-color:var(--ink); background:var(--paper); }
+  .lp-root .theme-toggle:hover{ background: var(--card); transform: translateY(-2px); }
   .lp-root .theme-toggle:active{ transform: scale(.94); }
-  .lp-root .theme-toggle svg{ width:16px; height:16px; display:block; }
+  .lp-root .theme-toggle svg{ width: 18px; height: 18px; display: block; }
   .lp-root .theme-toggle .sun{ display:none; }
   .lp-root .theme-toggle .moon{ display:block; }
   :root[data-theme="dark"] .lp-root .theme-toggle .sun{ display:block; }
   :root[data-theme="dark"] .lp-root .theme-toggle .moon{ display:none; }
+  @media (prefers-reduced-motion: reduce){
+    .lp-root .theme-toggle{ transition: none; }
+    .lp-root .theme-toggle:hover{ transform: none; }
+  }
 
   /* mobile nav tweak */
   @media (max-width: 900px){
@@ -463,7 +476,11 @@ const STYLE = `
     .lp-root .wrap{ padding: 0 16px; }
     .lp-root nav.top .row{ gap: 8px; }
     .lp-root nav.top .tk-tag{ display: none; }
-    .lp-root .theme-toggle{ width: 34px; height: 34px; }
+    .lp-root .theme-toggle{
+      right: max(14px, env(safe-area-inset-right));
+      bottom: max(14px, env(safe-area-inset-bottom));
+      width: 42px; height: 42px;
+    }
     .lp-root h1.title{ font-size: clamp(34px, 10.5vw, 48px); }
     .lp-root .trust .logos{ gap: 14px; }
     .lp-root .trust .logos span{ font-size: 14px; }
@@ -617,11 +634,11 @@ export function Landing() {
             </ul>
             <div className="cta">
               <a href="#" className="btn">Войти</a>
-              <ThemeToggle/>
               <a href="#" className="btn solid">Попробовать <span className="arr">→</span></a>
             </div>
           </div>
         </nav>
+        <ThemeToggle/>
 
         {/* HERO */}
         <header className="hero">
