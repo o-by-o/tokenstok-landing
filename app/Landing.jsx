@@ -1,0 +1,748 @@
+"use client";
+
+// Landing.jsx — full port of variants/marketplace.html from the design bundle.
+// One big component intentionally — mirrors the source HTML structure so any
+// future design tweak maps 1:1.
+
+import { useEffect, useRef, useState } from "react";
+import { Logo } from "./Logo";
+
+// ─── CSS (lifted directly from marketplace.html with prefixed selectors
+//       scoped under .lp-root to avoid bleeding into the rest of the app)
+const STYLE = `
+  .lp-root{
+    --bg: #faf9f6;
+    --ink: #0c0c0c;
+    --ink-2: #2a2a2a;
+    --mute: #6c6c6c;
+    --mute-2: #a8a6a0;
+    --line: #1c1c1c;
+    --line-2: #e6e3da;
+    --paper: #f0ede4;
+    --card: #ffffff;
+    --hl: #0c0c0c;
+    --hl-fg: #ffffff;
+    --sans: var(--font-manrope), -apple-system, BlinkMacSystemFont, sans-serif;
+    --mono: var(--font-jetbrains-mono), ui-monospace, Menlo, monospace;
+    --tk-logo-mute: var(--mute);
+    background: var(--bg); color: var(--ink);
+    font-family: var(--sans);
+  }
+  .lp-root .wrap{ max-width:1140px; margin:0 auto; padding:0 36px; }
+
+  /* nav */
+  .lp-root nav.top{
+    position:sticky; top:0; z-index:50;
+    background: color-mix(in oklab, var(--bg) 92%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom:1px solid var(--line-2);
+  }
+  .lp-root nav.top .row{ display:flex; align-items:center; justify-content:space-between; padding:18px 0; gap:24px; }
+  .lp-root nav.top ul{ list-style:none; display:flex; gap:28px; margin:0; padding:0; font-size:14px; color:var(--ink-2); font-weight:500; }
+  .lp-root nav.top ul a:hover{ color:var(--ink); text-decoration:underline; text-underline-offset:4px; }
+  .lp-root nav.top .cta{ display:flex; gap:10px; align-items:center; }
+  .lp-root .btn{
+    display:inline-flex; align-items:center; gap:8px;
+    border:1px solid var(--ink); padding:10px 16px; border-radius:999px;
+    font-weight:600; font-size:14px; font-family:var(--sans);
+    background:transparent; color:var(--ink); cursor:pointer;
+    transition: background .15s ease, color .15s ease, transform .15s ease;
+  }
+  .lp-root .btn:hover{ background:var(--ink); color:var(--bg); }
+  .lp-root .btn.solid{ background:var(--ink); color:var(--bg); }
+  .lp-root .btn.solid:hover{ background:transparent; color:var(--ink); }
+  .lp-root .btn .arr{ display:inline-block; transition: transform .2s ease; }
+  .lp-root .btn:hover .arr{ transform: translateX(3px); }
+
+  /* hero */
+  .lp-root header.hero{ padding: 80px 0 100px; position:relative; }
+  .lp-root .eyebrow{
+    font-family:var(--mono); font-size:12px; letter-spacing:0.08em;
+    text-transform:uppercase; color:var(--mute);
+    display:inline-flex; align-items:center; gap:10px; margin-bottom:32px;
+  }
+  .lp-root .eyebrow::before{ content:""; width:24px; height:1px; background:var(--mute); display:inline-block; }
+  .lp-root h1.title{
+    font-family:var(--sans); font-weight:800;
+    font-size: clamp(64px, 8.5vw, 108px);
+    line-height: 0.96; letter-spacing: -0.035em;
+    margin:0 0 28px; text-wrap: balance;
+  }
+  .lp-root h1.title em{
+    font-style: normal; display:inline-block; padding: 0 12px;
+    background: var(--ink); color: var(--bg);
+    transform: skew(-4deg); margin: 0 -2px;
+  }
+  .lp-root h1.title em > span{ display:inline-block; transform: skew(4deg); }
+  .lp-root .lede{ font-size: 21px; line-height: 1.45; color: var(--ink-2); max-width: 640px; margin: 0 0 40px; letter-spacing: -0.005em; }
+  .lp-root .hero-ctas{ display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+  .lp-root .hero-ctas .btn{ padding:14px 22px; font-size:15px; }
+  .lp-root .hero-note{ font-family:var(--mono); font-size:12px; color:var(--mute); margin-left:6px; }
+
+  /* prompt demo */
+  .lp-root .demo{
+    margin-top: 64px; border:1px solid var(--line-2); border-radius:18px;
+    background:var(--card); overflow:hidden;
+    box-shadow: 0 1px 0 rgba(0,0,0,.02), 0 24px 60px -32px rgba(0,0,0,.18);
+  }
+  .lp-root .demo-head{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 18px; border-bottom:1px solid var(--line-2);
+    font-family:var(--mono); font-size:12px; color:var(--mute); background: var(--paper);
+  }
+  .lp-root .demo-head .dots{ display:flex; gap:6px; }
+  .lp-root .demo-head .dots span{ width:9px; height:9px; border-radius:50%; background: var(--mute-2); }
+  .lp-root .demo-head .dots span:nth-child(1){ background: var(--ink); }
+  .lp-root .demo-body{
+    padding: 24px 28px 28px; min-height: 200px;
+    display:flex; flex-direction:column; gap:14px;
+    font-size:16px; line-height:1.55;
+  }
+  .lp-root .demo-q{
+    align-self:flex-end; background: var(--paper); color: var(--ink);
+    padding: 10px 14px; border-radius: 16px 16px 4px 16px;
+    max-width: 80%; font-size: 15px;
+  }
+  .lp-root .demo-a{
+    align-self:flex-start; color: var(--ink);
+    max-width: 92%; white-space: pre-wrap; min-height: 1.2em;
+    font-family: var(--mono); font-size: 14.5px; line-height: 1.55;
+  }
+  .lp-root .caret{
+    display:inline-block; width:.55em; height:1em; background: var(--ink);
+    vertical-align:-2px; margin-left:1px; animation: lp-blink 1s steps(2) infinite;
+  }
+  @keyframes lp-blink{ 50%{ opacity:0; } }
+  .lp-root .demo-meta{
+    display:flex; gap:18px; align-items:center;
+    padding: 12px 18px; border-top:1px solid var(--line-2);
+    font-family:var(--mono); font-size:11px; color:var(--mute); background: var(--paper);
+    flex-wrap:wrap;
+  }
+  .lp-root .demo-meta b{ color: var(--ink); font-weight:600; }
+  .lp-root .demo-meta .live{ display:inline-flex; align-items:center; gap:6px; }
+  .lp-root .demo-meta .live::before{
+    content:""; width:6px; height:6px; border-radius:50%; background: var(--ink);
+    animation: lp-pulse 1.4s ease-in-out infinite;
+  }
+  @keyframes lp-pulse{ 50%{ opacity:.35; } }
+
+  /* trust */
+  .lp-root .trust{ border-top:1px solid var(--line-2); border-bottom:1px solid var(--line-2); padding: 22px 0; margin-top: 88px; }
+  .lp-root .trust .row{ display:flex; justify-content:space-between; align-items:center; gap:32px; flex-wrap:wrap; }
+  .lp-root .trust .l{ font-family:var(--mono); font-size:12px; color: var(--mute); text-transform:uppercase; letter-spacing:.06em; }
+  .lp-root .trust .logos{ display:flex; gap:36px; align-items:center; opacity:.7; flex-wrap:wrap; }
+  .lp-root .trust .logos span{ font-weight:700; font-size:18px; letter-spacing:-0.02em; color:var(--ink-2); font-family: var(--sans); }
+  .lp-root .trust .logos span.mono{ font-family: var(--mono); font-weight:600; font-size:15px; }
+
+  /* sections */
+  .lp-root section{ padding: 110px 0; }
+  .lp-root section h2{ font-family:var(--sans); font-weight:700; font-size: clamp(40px, 4.8vw, 60px); line-height: 1.02; letter-spacing: -0.03em; margin:0 0 18px; text-wrap: balance; }
+  .lp-root section .lede{ margin-bottom: 56px; }
+  .lp-root .section-head{ display:flex; align-items:flex-end; justify-content:space-between; gap:32px; margin-bottom: 48px; }
+  .lp-root .section-head .left{ max-width: 620px; }
+  .lp-root .section-head .num{ font-family:var(--mono); font-size:12px; color:var(--mute); text-transform:uppercase; letter-spacing:.08em; }
+
+  /* catalog */
+  .lp-root .cat-controls{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:28px; font-family:var(--mono); font-size:13px; }
+  .lp-root .cat-controls button{
+    background:transparent; border:1px solid var(--line-2);
+    padding:8px 14px; border-radius:999px; cursor:pointer;
+    font-family:var(--mono); font-size:12px; color:var(--ink-2);
+    transition: all .15s ease;
+  }
+  .lp-root .cat-controls button:hover{ border-color: var(--ink); }
+  .lp-root .cat-controls button.active{ background:var(--ink); color: var(--bg); border-color: var(--ink); }
+  .lp-root .cat-controls .count{ margin-left:auto; color:var(--mute); align-self:center; }
+  .lp-root .grid{ display:grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  @media (max-width: 900px){ .lp-root .grid{ grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 600px){ .lp-root .grid{ grid-template-columns: 1fr; } }
+  .lp-root .card{
+    background: var(--card); border:1px solid var(--line-2); border-radius: 16px;
+    padding: 22px; display:flex; flex-direction:column; gap:16px; position:relative;
+    transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+  }
+  .lp-root .card:hover{ transform: translateY(-2px); border-color: var(--ink); box-shadow: 0 12px 32px -16px rgba(0,0,0,.18); }
+  .lp-root .card .top{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+  .lp-root .card .glyph{
+    width:44px; height:44px; border-radius:11px; background:var(--paper);
+    display:grid; place-items:center; flex:0 0 auto;
+    border:1px solid var(--line-2);
+    font-family:var(--mono); font-weight:600; font-size:14px; color: var(--ink);
+  }
+  .lp-root .card .tag{
+    font-family:var(--mono); font-size:10px; letter-spacing:.06em; text-transform:uppercase;
+    color: var(--mute); padding: 4px 8px; border:1px solid var(--line-2); border-radius:999px;
+  }
+  .lp-root .card .tag.hot{ color: var(--bg); background: var(--ink); border-color: var(--ink); }
+  .lp-root .card h3{ margin: 0; font-weight:700; font-size: 20px; letter-spacing: -0.02em; }
+  .lp-root .card .vendor{ font-family:var(--mono); font-size:12px; color:var(--mute); margin-top: -10px; }
+  .lp-root .card .desc{ font-size:14px; color: var(--ink-2); line-height:1.5; margin-top: -4px; }
+  .lp-root .card .price{ display:flex; align-items:baseline; justify-content:space-between; padding-top: 14px; border-top:1px dashed var(--line-2); margin-top: auto; }
+  .lp-root .card .price .v{ font-family:var(--mono); font-weight:600; font-size: 17px; color: var(--ink); }
+  .lp-root .card .price .u{ font-family:var(--mono); font-size:11px; color: var(--mute); text-align:right; max-width:55%; }
+  .lp-root .card .buy{
+    margin-top: 14px;
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 10px 14px; border-radius: 999px; border:1px solid var(--ink);
+    background: transparent; cursor:pointer;
+    font-family: var(--sans); font-weight:600; font-size:13px;
+    transition: all .15s ease;
+  }
+  .lp-root .card .buy:hover{ background:var(--ink); color: var(--bg); }
+  .lp-root .card .buy:hover .arr{ transform: translateX(3px); }
+  .lp-root .card .buy .arr{ transition: transform .2s ease; }
+  .lp-root .more{ margin-top:32px; display:flex; justify-content:center; }
+
+  /* how */
+  .lp-root .steps{ display:grid; grid-template-columns: repeat(3, 1fr); gap: 4px; border:1px solid var(--line-2); border-radius: 16px; overflow:hidden; }
+  @media (max-width: 800px){ .lp-root .steps{ grid-template-columns: 1fr; } }
+  .lp-root .step{
+    padding: 36px 32px 40px; background: var(--card); position:relative;
+    display:flex; flex-direction:column; gap:14px; min-height: 240px;
+  }
+  .lp-root .step + .step{ border-left:1px solid var(--line-2); }
+  @media (max-width: 800px){ .lp-root .step + .step{ border-left:0; border-top:1px solid var(--line-2); } }
+  .lp-root .step .n{ font-family:var(--mono); font-size:12px; color:var(--mute); letter-spacing: .08em; margin-bottom: 14px; }
+  .lp-root .step h3{ margin:0; font-weight:700; font-size: 28px; line-height:1.1; letter-spacing: -0.025em; }
+  .lp-root .step p{ margin:0; color: var(--ink-2); font-size: 15px; line-height: 1.55; }
+  .lp-root .step .ill{
+    margin-top: auto; height: 80px;
+    border:1px dashed var(--line-2); border-radius:10px;
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--mono); font-size:11px; color:var(--mute);
+    background: var(--paper); padding: 12px;
+    white-space: pre; overflow:hidden;
+  }
+
+  /* pricing */
+  .lp-root .pricing{ display:grid; grid-template-columns: 1.1fr .9fr; gap:14px; }
+  @media (max-width: 800px){ .lp-root .pricing{ grid-template-columns: 1fr; } }
+  .lp-root .price-card{
+    background: var(--card); border:1px solid var(--line-2); border-radius: 18px;
+    padding: 32px; display:flex; flex-direction:column; gap:20px; position:relative;
+  }
+  .lp-root .price-card.featured{ background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .lp-root .price-card .ribbon{
+    position:absolute; top:24px; right:24px;
+    font-family:var(--mono); font-size:11px; letter-spacing:.06em; text-transform:uppercase;
+    border:1px solid currentColor; padding: 4px 10px; border-radius: 999px; opacity:.7;
+  }
+  .lp-root .price-card h3{ margin:0; font-weight:700; font-size: 26px; letter-spacing: -0.02em; }
+  .lp-root .price-card .big{ font-family: var(--sans); font-weight:800; font-size: 64px; letter-spacing: -0.04em; line-height: 1; }
+  .lp-root .price-card .big sup{ font-size: 22px; font-weight:600; vertical-align: top; margin-left: 4px; opacity:.7; }
+  .lp-root .price-card .sub{ opacity:.7; font-size: 14px; margin-top: -10px; }
+  .lp-root .price-card ul{ list-style:none; padding:0; margin: 0; display:flex; flex-direction:column; gap:10px; }
+  .lp-root .price-card ul li{ display:flex; gap:10px; align-items:flex-start; font-size: 15px; line-height:1.45; }
+  .lp-root .price-card ul li::before{
+    content:""; flex:0 0 auto; width:14px; height:14px; border-radius:50%;
+    background: currentColor; opacity: .9; margin-top:3px;
+    mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 14 14"><path d="M2 7l3.5 3.5L12 4" stroke="black" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>') center / contain no-repeat;
+    -webkit-mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 14 14"><path d="M2 7l3.5 3.5L12 4" stroke="black" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>') center / contain no-repeat;
+  }
+  .lp-root .price-card .price-btn{
+    margin-top:auto;
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    padding: 14px 18px; border-radius: 999px;
+    font-family:var(--sans); font-weight:600; font-size: 15px; cursor:pointer;
+    background: var(--ink); color: var(--bg); border: 1px solid var(--ink);
+    transition: all .15s ease;
+  }
+  .lp-root .price-card.featured .price-btn{ background: var(--bg); color: var(--ink); border-color: var(--bg); }
+  .lp-root .price-card .price-btn:hover{ transform: translateY(-1px); }
+
+  /* quotes */
+  .lp-root .quotes{ display:grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  @media (max-width: 900px){ .lp-root .quotes{ grid-template-columns: 1fr; } }
+  .lp-root .quote{
+    background: var(--card); border:1px solid var(--line-2); border-radius: 16px;
+    padding: 26px; display:flex; flex-direction:column; gap:18px;
+  }
+  .lp-root .quote .text{ font-size: 17px; line-height: 1.5; letter-spacing: -0.005em; text-wrap: pretty; }
+  .lp-root .quote .who{ display:flex; align-items:center; gap:12px; padding-top:14px; border-top:1px solid var(--line-2); }
+  .lp-root .quote .av{
+    width:36px; height:36px; border-radius:50%; background: var(--paper);
+    display:grid; place-items:center;
+    font-family:var(--mono); font-weight:600; font-size:12px;
+    color: var(--ink); border:1px solid var(--line-2);
+  }
+  .lp-root .quote .nm{ font-weight:600; font-size:14px; }
+  .lp-root .quote .role{ font-size:12px; color: var(--mute); font-family: var(--mono); }
+
+  /* faq */
+  .lp-root .faq{ display:grid; grid-template-columns: 1fr 1.4fr; gap: 48px; }
+  @media (max-width: 800px){ .lp-root .faq{ grid-template-columns: 1fr; } }
+  .lp-root .faq .left h2{ position: sticky; top: 100px; }
+  .lp-root .faq dl{ margin:0; padding:0; border-top:1px solid var(--line); }
+  .lp-root .faq details{ border-bottom:1px solid var(--line-2); padding: 22px 0; }
+  .lp-root .faq summary{
+    list-style:none; cursor:pointer;
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+    font-weight:600; font-size: 19px; letter-spacing: -0.015em;
+  }
+  .lp-root .faq summary::-webkit-details-marker{ display:none; }
+  .lp-root .faq summary .sign{
+    width:22px; height:22px; flex:0 0 auto;
+    display:grid; place-items:center; position:relative;
+    border:1px solid var(--ink); border-radius:50%;
+  }
+  .lp-root .faq summary .sign::before, .lp-root .faq summary .sign::after{
+    content:""; position:absolute; background: var(--ink); transition: transform .2s ease;
+  }
+  .lp-root .faq summary .sign::before{ width:10px; height:1.5px; }
+  .lp-root .faq summary .sign::after{ width:1.5px; height:10px; }
+  .lp-root .faq details[open] summary .sign::after{ transform: scaleY(0); }
+  .lp-root .faq details p{ margin: 14px 0 0; color: var(--ink-2); font-size: 15.5px; line-height: 1.55; max-width: 56ch; }
+
+  /* cta */
+  .lp-root section.cta-section{
+    padding: 120px 0; background: var(--ink); color: var(--bg);
+    margin-top: 40px; border-radius: 28px 28px 0 0;
+  }
+  .lp-root section.cta-section .wrap{ text-align: center; }
+  .lp-root section.cta-section h2{
+    font-size: clamp(48px, 7vw, 92px); letter-spacing: -0.035em; line-height: 0.98;
+    margin: 0 auto 24px; max-width: 14ch; text-wrap: balance;
+  }
+  .lp-root section.cta-section .lede{ color: rgba(255,255,255,.7); max-width: 540px; margin: 0 auto 40px; }
+  .lp-root .signup{
+    max-width: 480px; margin: 0 auto; display:flex; gap: 8px;
+    border:1px solid rgba(255,255,255,.25); padding: 6px; border-radius: 999px;
+    background: rgba(255,255,255,.04); transition: border-color .15s ease;
+  }
+  .lp-root .signup:focus-within{ border-color: rgba(255,255,255,.8); }
+  .lp-root .signup input{
+    flex:1; background: transparent; border:0; outline:0;
+    color: var(--bg); font-family: var(--sans); font-size: 15px; padding: 12px 18px;
+  }
+  .lp-root .signup input::placeholder{ color: rgba(255,255,255,.4); }
+  .lp-root .signup button{
+    background: var(--bg); color: var(--ink); border:0;
+    padding: 12px 22px; border-radius: 999px;
+    font-family: var(--sans); font-weight: 600; font-size: 14px; cursor: pointer;
+    display:inline-flex; align-items:center; gap:8px;
+    transition: transform .15s ease;
+  }
+  .lp-root .signup button:hover{ transform: translateX(2px); }
+  .lp-root .cta-foot{ margin-top: 22px; font-family: var(--mono); font-size:12px; color: rgba(255,255,255,.5); }
+
+  /* footer */
+  .lp-root footer{ background: var(--ink); color: var(--bg); padding: 60px 0 40px; }
+  .lp-root footer .row{ display:grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 32px; }
+  @media (max-width: 800px){ .lp-root footer .row{ grid-template-columns: 1fr 1fr; } }
+  .lp-root footer .col h4{ margin:0 0 18px; font-size: 12px; font-family: var(--mono); text-transform: uppercase; letter-spacing: .08em; color: rgba(255,255,255,.5); font-weight:500; }
+  .lp-root footer .col ul{ list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:10px; }
+  .lp-root footer .col ul a{ font-size:14px; color: rgba(255,255,255,.85); }
+  .lp-root footer .col ul a:hover{ color: var(--bg); text-decoration: underline; text-underline-offset: 4px; }
+  .lp-root footer .tag-line{ margin-top: 16px; max-width: 280px; color: rgba(255,255,255,.6); font-size: 14px; line-height: 1.5; }
+  .lp-root footer .legal{
+    margin-top: 56px; padding-top: 24px;
+    border-top:1px solid rgba(255,255,255,.12);
+    display:flex; justify-content:space-between; align-items:center;
+    font-family: var(--mono); font-size: 11px; color: rgba(255,255,255,.5);
+    flex-wrap:wrap; gap: 16px;
+  }
+  .lp-root footer { --tk-logo-mute: rgba(255,255,255,.5); }
+
+  /* mobile nav tweak */
+  @media (max-width: 900px){
+    .lp-root nav.top ul{ display:none; }
+    .lp-root nav.top .cta .btn:first-child{ display:none; }
+  }
+`;
+
+// ─── catalog data — taken from marketplace.html
+const MODELS = [
+  { name:"GPT-5", vendor:"OpenAI", glyph:"G5", desc:"Флагман для рассуждений и кода. Длинный контекст 1M токенов.", price:"4,12", unit:"₽ / 1k вх. · 12,34 ₽ / 1k вых.", tag:"hot" },
+  { name:"Claude Sonnet 4.5", vendor:"Anthropic", glyph:"CL", desc:"Лучший по коду в публичных бенчмарках. Очень длинные сессии.", price:"2,88", unit:"₽ / 1k вх. · 8,64 ₽ / 1k вых.", tag:"" },
+  { name:"Claude Haiku 4.5", vendor:"Anthropic", glyph:"CH", desc:"Шустрый и дешёвый, для массовых задач и классификации.", price:"0,38", unit:"₽ / 1k вх. · 1,52 ₽ / 1k вых.", tag:"" },
+  { name:"Gemini 2.5 Pro", vendor:"Google", glyph:"G·", desc:"Мультимодальность, видео и аудио на входе. 2M контекст.", price:"1,82", unit:"₽ / 1k вх. · 6,12 ₽ / 1k вых.", tag:"" },
+  { name:"DeepSeek R1", vendor:"DeepSeek", glyph:"DS", desc:"Reasoning-модель с открытыми весами. Бюджетная альтернатива.", price:"0,52", unit:"₽ / 1k вх. · 1,84 ₽ / 1k вых.", tag:"new" },
+  { name:"Llama 4 405B", vendor:"Meta", glyph:"L4", desc:"Открытые веса, корпоративный self-host совместимый формат.", price:"1,12", unit:"₽ / 1k вх. · 3,40 ₽ / 1k вых.", tag:"" },
+  { name:"Mistral Large 3", vendor:"Mistral", glyph:"M3", desc:"Сильный на европейских языках, экономный на длинном контексте.", price:"0,98", unit:"₽ / 1k вх. · 2,94 ₽ / 1k вых.", tag:"" },
+  { name:"DALL·E 4", vendor:"OpenAI", glyph:"D4", desc:"Генерация изображений 1024² с точным следованием промпту.", price:"3,40", unit:"₽ / изображение", tag:"" },
+  { name:"Suno v5", vendor:"Suno", glyph:"S5", desc:"Музыка по тексту: 3 минуты вокала и инструментала за один заход.", price:"6,80", unit:"₽ / минуту", tag:"" },
+];
+
+const SCRIPT = [
+  { q: "сколько стоит запрос к gpt-5?",
+    a: "≈ 0,03 ₽ за обычный диалог в 700 токенов.\nЗа этот ответ ты заплатишь 0,0124 ₽.",
+    model: "gpt-5", cost: 0.0124, tokens: 142, lat: 312 },
+  { q: "переключи на claude, у него длиннее память",
+    a: "Готово. Текущая модель → claude-sonnet-4.5\nКонтекст: 1M токенов. Ключ тот же.",
+    model: "claude-sonnet-4.5", cost: 0.0088, tokens: 96, lat: 281 },
+  { q: "а самый дешёвый вариант для классификации?",
+    a: "claude-haiku-4.5 — 0,38 ₽ за 1k входных.\nДля 100k запросов получится ~38 ₽ в день.",
+    model: "claude-haiku-4.5", cost: 0.0042, tokens: 71, lat: 198 },
+];
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+function DemoTypewriter() {
+  const aRef = useRef(null);
+  const [turnIdx, setTurnIdx] = useState(0);
+  const [q, setQ] = useState(SCRIPT[0].q);
+  const [model, setModel] = useState(SCRIPT[0].model);
+  const [tokens, setTokens] = useState(0);
+  const [cost, setCost] = useState(0);
+  const [lat, setLat] = useState(SCRIPT[0].lat);
+  const cancelRef = useRef(false);
+
+  useEffect(() => {
+    cancelRef.current = false;
+    let i = 0;
+    const run = async () => {
+      while (!cancelRef.current) {
+        const turn = SCRIPT[i % SCRIPT.length];
+        setTurnIdx(i % SCRIPT.length);
+        setQ(turn.q);
+        setModel(turn.model);
+        setTokens(0);
+        setCost(0);
+        setLat(turn.lat);
+        if (aRef.current) aRef.current.innerHTML = "";
+        await sleep(400);
+        if (cancelRef.current) return;
+        const text = turn.a;
+        const start = performance.now();
+        for (let c = 0; c < text.length; c++) {
+          if (cancelRef.current) return;
+          if (aRef.current) {
+            const tn = document.createTextNode(text[c]);
+            const caret = aRef.current.querySelector(".caret");
+            if (caret) caret.parentNode.insertBefore(tn, caret);
+            else aRef.current.appendChild(tn);
+          }
+          const ratio = (c + 1) / text.length;
+          setTokens(Math.round(turn.tokens * ratio));
+          setCost(turn.cost * ratio);
+          await sleep(text[c] === "\n" ? 180 : Math.random() * 30 + 22);
+        }
+        await sleep(3200);
+        i++;
+      }
+    };
+    // initialize caret in a element
+    if (aRef.current) {
+      aRef.current.innerHTML = '<span class="caret"></span>';
+    }
+    run();
+    return () => { cancelRef.current = true; };
+  }, []);
+
+  return (
+    <div className="demo" id="demo">
+      <div className="demo-head">
+        <div className="dots"><span/><span/><span/></div>
+        <span>playground · gpt-5 → claude-sonnet-4.5</span>
+        <span>{cost.toFixed(4).replace(".", ",")} ₽</span>
+      </div>
+      <div className="demo-body">
+        <div className="demo-q">{q}</div>
+        <div className="demo-a" ref={aRef}>
+          <span className="caret"/>
+        </div>
+      </div>
+      <div className="demo-meta">
+        <span className="live">streaming</span>
+        <span>модель: <b>{model}</b></span>
+        <span>токенов: <b>{tokens}</b></span>
+        <span>latency: <b>{lat} ms</b></span>
+        <span style={{ marginLeft:"auto" }}>остаток на счёте: <b>847,12 ₽</b></span>
+      </div>
+    </div>
+  );
+}
+
+export function Landing() {
+  return (
+    <>
+      <style dangerouslySetInnerHTML={{ __html: STYLE }} />
+      <div className="lp-root">
+        {/* NAV */}
+        <nav className="top">
+          <div className="wrap row">
+            <a href="#"><Logo tag="v1.0 · beta"/></a>
+            <ul>
+              <li><a href="#catalog">Модели</a></li>
+              <li><a href="#how">Как работает</a></li>
+              <li><a href="#pricing">Цены</a></li>
+              <li><a href="#faq">FAQ</a></li>
+              <li><a href="#docs">Документация</a></li>
+            </ul>
+            <div className="cta">
+              <a href="#" className="btn">Войти</a>
+              <a href="#" className="btn solid">Попробовать <span className="arr">→</span></a>
+            </div>
+          </div>
+        </nav>
+
+        {/* HERO */}
+        <header className="hero">
+          <div className="wrap">
+            <div className="eyebrow">маркетплейс ai-токенов · 218 моделей в каталоге</div>
+            <h1 className="title">
+              Все нейросети<br/>в одном кошельке.<br/>
+              <em><span>Платишь</span></em> только<br/>за то, что используешь.
+            </h1>
+            <p className="lede">218 моделей под одним API-ключом. Без подписок, без минималок, без «пакетов на год». Положил рубль — потратил рубль. Остальное лежит и ждёт.</p>
+            <div className="hero-ctas">
+              <a href="#" className="btn solid">Открыть кошелёк <span className="arr">→</span></a>
+              <a href="#catalog" className="btn">Смотреть каталог</a>
+              <span className="hero-note">первые 100 ₽ — за наш счёт</span>
+            </div>
+            <DemoTypewriter/>
+          </div>
+        </header>
+
+        {/* TRUST */}
+        <div className="trust">
+          <div className="wrap row">
+            <div className="l">Один ключ — все провайдеры</div>
+            <div className="logos">
+              <span>OpenAI</span>
+              <span>Anthropic</span>
+              <span>Google</span>
+              <span>Meta</span>
+              <span>Mistral</span>
+              <span>DeepSeek</span>
+              <span className="mono">+ 14 других</span>
+            </div>
+          </div>
+        </div>
+
+        {/* CATALOG */}
+        <section id="catalog">
+          <div className="wrap">
+            <div className="section-head">
+              <div className="left">
+                <div className="num">01 · каталог</div>
+                <h2>218 моделей.<br/>Один и тот же&nbsp;баланс.</h2>
+                <p className="lede">Текст, код, картинки, голос, видео, эмбеддинги. Подключаешь любую модель за секунды, платишь только за фактический расход. Если модель добавили в среду — она в каталоге к четвергу.</p>
+              </div>
+            </div>
+            <div className="cat-controls">
+              <button className="active">Все · 218</button>
+              <button>Текст · 84</button>
+              <button>Код · 22</button>
+              <button>Изображения · 41</button>
+              <button>Голос · 18</button>
+              <button>Видео · 11</button>
+              <button>Эмбеддинги · 42</button>
+              <span className="count">показано 9 из 218</span>
+            </div>
+            <div className="grid">
+              {MODELS.map((m, i) => (
+                <div key={i} className="card">
+                  <div className="top">
+                    <div className="glyph">{m.glyph}</div>
+                    {m.tag && <div className={`tag ${m.tag}`}>{m.tag === "hot" ? "🔥 хит" : m.tag}</div>}
+                  </div>
+                  <h3>{m.name}</h3>
+                  <div className="vendor">by {m.vendor}</div>
+                  <div className="desc">{m.desc}</div>
+                  <div className="price">
+                    <span className="v">{m.price} ₽</span>
+                    <span className="u">{m.unit}</span>
+                  </div>
+                  <button className="buy">подключить <span className="arr">→</span></button>
+                </div>
+              ))}
+            </div>
+            <div className="more">
+              <a href="#" className="btn">Смотреть все 218 моделей <span className="arr">→</span></a>
+            </div>
+          </div>
+        </section>
+
+        {/* HOW */}
+        <section id="how" style={{ background: "var(--paper)" }}>
+          <div className="wrap">
+            <div className="section-head">
+              <div className="left">
+                <div className="num">02 · как это работает</div>
+                <h2>Подключаешь за минуту.<br/>Платишь по факту.</h2>
+              </div>
+            </div>
+            <div className="steps">
+              <div className="step">
+                <div className="n">шаг 01</div>
+                <h3>Положи&nbsp;на&nbsp;счёт</h3>
+                <p>От 100 ₽. Карта, СБП, крипта. Без подписок и автосписаний — деньги лежат, пока не используешь.</p>
+                <div className="ill">{`┌────────────┐\n│  + 1000 ₽  │\n└────────────┘`}</div>
+              </div>
+              <div className="step">
+                <div className="n">шаг 02</div>
+                <h3>Возьми&nbsp;ключ</h3>
+                <p>Один API-ключ — все 218 моделей. Совместим с OpenAI SDK, drop-in. Меняешь base_url и поехали.</p>
+                <div className="ill">{`$ export API_KEY=ts_•••\n$ curl /v1/chat ...`}</div>
+              </div>
+              <div className="step">
+                <div className="n">шаг 03</div>
+                <h3>Запускай</h3>
+                <p>Каждый запрос списывает копейки. В дашборде видно — куда, сколько, какая модель. Прозрачно до токена.</p>
+                <div className="ill">{`gpt-5    · 0,0421 ₽\nclaude-4 · 0,0388 ₽\ngemini-2 · 0,0156 ₽`}</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* PRICING */}
+        <section id="pricing">
+          <div className="wrap">
+            <div className="section-head">
+              <div className="left">
+                <div className="num">03 · цены</div>
+                <h2>Никаких тарифов.<br/>Только цена за токен.</h2>
+                <p className="lede">Цена один в один к провайдеру + 0% сверху на первые 10&nbsp;000 ₽ оборота. Дальше — 4%. И всё. Никаких подписок, минималок, «корпоративных пакетов».</p>
+              </div>
+            </div>
+            <div className="pricing">
+              <div className="price-card featured">
+                <div className="ribbon">рекомендуем</div>
+                <h3>Pay&#8209;as&#8209;you&#8209;go</h3>
+                <div className="big">0<sup>%</sup></div>
+                <div className="sub">наценки до 10 000 ₽ оборота. После — 4%.</div>
+                <ul>
+                  <li>218 моделей по одному ключу</li>
+                  <li>Цены провайдеров — один в один</li>
+                  <li>Без подписок и минимальных платежей</li>
+                  <li>Закрытие счёта в один клик, остаток возвращается</li>
+                  <li>Дашборд с разбивкой по моделям и проектам</li>
+                </ul>
+                <button className="price-btn">Положить 100 ₽ <span className="arr">→</span></button>
+              </div>
+              <div className="price-card">
+                <h3>Команда</h3>
+                <div className="big">990<sup>₽/мес</sup></div>
+                <div className="sub">для команд от 3 человек. Всё из PAYG + ниже.</div>
+                <ul>
+                  <li>Общий баланс на команду</li>
+                  <li>Лимиты и роли по участникам</li>
+                  <li>Биллинг по проектам</li>
+                  <li>SSO и SAML</li>
+                  <li>SLA 99.95% и приоритетная поддержка</li>
+                </ul>
+                <button className="price-btn">Подключить команду <span className="arr">→</span></button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* TESTIMONIALS */}
+        <section style={{ background: "var(--paper)" }}>
+          <div className="wrap">
+            <div className="section-head">
+              <div className="left">
+                <div className="num">04 · отзывы</div>
+                <h2>2 400 разработчиков<br/>уже переехали.</h2>
+              </div>
+            </div>
+            <div className="quotes">
+              {[
+                { text: "Раньше держал три подписки на OpenAI, Anthropic и Replicate. Теперь — один счёт и один ключ. Платёж в три раза меньше, потому что выходные я не работаю и никто за это не списывает.", av: "МК", nm: "Михаил Кравченко", role: "founder · ai-tutor" },
+                { text: "Главное — что не надо ходить к закупкам. Одна оплата, одна карточка, один акт. А в коде drop-in замена openai → tokenstock. Час работы — и продакшен.", av: "АП", nm: "Анна Прокофьева", role: "tech lead · fintech" },
+                { text: "Открыл, положил 500 ₽, попробовал восемь моделей за вечер, выбрал deepseek и mistral. Никто не заставил подписаться, никто не списал ничего лишнего. Это, кажется, нормально работает.", av: "ДС", nm: "Дмитрий Соловьёв", role: "ml engineer · indie" },
+              ].map((q, i) => (
+                <div key={i} className="quote">
+                  <div className="text">{q.text}</div>
+                  <div className="who">
+                    <div className="av">{q.av}</div>
+                    <div>
+                      <div className="nm">{q.nm}</div>
+                      <div className="role">{q.role}</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* FAQ */}
+        <section id="faq">
+          <div className="wrap">
+            <div className="faq">
+              <div className="left">
+                <div className="num">05 · faq</div>
+                <h2>Частые<br/>вопросы.</h2>
+              </div>
+              <div>
+                <dl>
+                  {[
+                    { q: "А правда без подписок?", a: "Правда. Никакого ежемесячного списания, никакого «забыл отменить пробный период». Деньги лежат на счёте — тратятся только когда ты сам отправляешь запрос. Не пользуешься неделю — не платишь ничего.", open: true },
+                    { q: "Чем это лучше прямого OpenAI?", a: "Цены — те же самые, один в один. Плюс ты получаешь ещё 217 моделей по тому же ключу, рублёвый счёт, чек для бухгалтерии и возможность переключаться между провайдерами без переписывания кода." },
+                    { q: "А как с задержкой?", a: "Прокси у нас в трёх регионах (Москва, Амстердам, Сингапур). Оверхед — 20-40 мс. Для стриминга вообще незаметно: первый токен прилетает так же быстро, как и от провайдера напрямую." },
+                    { q: "Что с моими данными?", a: "Запросы и ответы не сохраняются — только метаданные для биллинга (модель, число токенов, время). Опционально можно включить логи в свой аккаунт, тогда они шифруются твоим ключом." },
+                    { q: "Можно ли вывести остаток?", a: "Да, в любой момент. Открываешь настройки → «закрыть счёт», деньги уходят обратно на ту же карту в течение 1-3 рабочих дней. Без вопросов и удержаний." },
+                    { q: "Подходит для продакшена?", a: "Да. SLA 99.95%, мониторинг, ретраи на сетевые ошибки, фолбэки на другие провайдеры. На «Команда» — приоритетная очередь и dedicated rate limits." },
+                  ].map((d, i) => (
+                    <details key={i} open={d.open || undefined}>
+                      <summary>{d.q} <span className="sign"/></summary>
+                      <p>{d.a}</p>
+                    </details>
+                  ))}
+                </dl>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* CTA */}
+        <section className="cta-section">
+          <div className="wrap">
+            <h2>Заводи кошелёк.<br/>Открывай каталог.</h2>
+            <p className="lede">100 ₽ при регистрации — наш подарок на то, чтобы попробовать. Без карты, без подписок, без «отменить можно в любой момент».</p>
+            <form className="signup" onSubmit={(e) => e.preventDefault()}>
+              <input type="email" placeholder="ты@пример.рф" />
+              <button type="submit">Открыть кошелёк <span className="arr">→</span></button>
+            </form>
+            <div className="cta-foot">займёт 47 секунд · без карты · без подписки</div>
+          </div>
+        </section>
+
+        {/* FOOTER */}
+        <footer>
+          <div className="wrap">
+            <div className="row">
+              <div className="col">
+                <a href="#" style={{ color:"var(--bg)" }}><Logo/></a>
+                <p className="tag-line">Маркетплейс ai-токенов. 218 моделей, один ключ, оплата по факту.</p>
+              </div>
+              <div className="col">
+                <h4>Продукт</h4>
+                <ul>
+                  <li><a href="#">Каталог</a></li>
+                  <li><a href="#">Документация</a></li>
+                  <li><a href="#">Playground</a></li>
+                  <li><a href="#">Статус</a></li>
+                </ul>
+              </div>
+              <div className="col">
+                <h4>Компания</h4>
+                <ul>
+                  <li><a href="#">О нас</a></li>
+                  <li><a href="#">Блог</a></li>
+                  <li><a href="#">Карьера</a></li>
+                  <li><a href="#">Контакты</a></li>
+                </ul>
+              </div>
+              <div className="col">
+                <h4>Право</h4>
+                <ul>
+                  <li><a href="#">Оферта</a></li>
+                  <li><a href="#">Конфиденциальность</a></li>
+                  <li><a href="#">Безопасность</a></li>
+                </ul>
+              </div>
+            </div>
+            <div className="legal">
+              <span>© 2026 ТокенСток · ИП Петров А. А. · ИНН 7700000000</span>
+              <span>сделано в Москве с уважением к токенам</span>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </>
+  );
+}
