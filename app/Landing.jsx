@@ -10,6 +10,7 @@ import { Logo } from "./Logo";
 // ─── CSS (lifted directly from marketplace.html with prefixed selectors
 //       scoped under .lp-root to avoid bleeding into the rest of the app)
 const STYLE = `
+  .lp-root{ overflow-x: hidden; }
   .lp-root{
     --bg: #faf9f6;
     --ink: #0c0c0c;
@@ -389,7 +390,7 @@ const STYLE = `
 
     .lp-root nav.top .row{ padding: 14px 0; gap: 12px; }
     .lp-root nav.top .cta{ gap: 8px; }
-    .lp-root nav.top .cta .btn{ padding: 9px 14px; font-size: 13px; }
+    .lp-root nav.top .cta .btn{ display: none; }
 
     .lp-root header.hero{ padding: 48px 0 64px; }
     .lp-root .eyebrow{ margin-bottom: 22px; font-size: 11px; }
@@ -461,7 +462,7 @@ const STYLE = `
   @media (max-width: 420px){
     .lp-root .wrap{ padding: 0 16px; }
     .lp-root nav.top .row{ gap: 8px; }
-    .lp-root nav.top .cta .btn{ padding: 8px 12px; font-size: 12.5px; }
+    .lp-root nav.top .tk-tag{ display: none; }
     .lp-root .theme-toggle{ width: 34px; height: 34px; }
     .lp-root h1.title{ font-size: clamp(34px, 10.5vw, 48px); }
     .lp-root .trust .logos{ gap: 14px; }
