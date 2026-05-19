@@ -16,8 +16,8 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata = {
-  title: "ТокенСток — маркетплейс AI-токенов",
-  description: "218 моделей под одним API-ключом. Без подписок, без минималок, без «пакетов на год». Положил рубль — потратил рубль.",
+  title: "Все нейросети на русском, без VPN и подписок — ТокенСток",
+  description: "ChatGPT, Claude, Gemini, DeepSeek и ещё 200+ нейросетей на русском — в одном чате, без VPN. Оплата картой РФ или СБП. Первые 100 ₽ бесплатно.",
 };
 
 export const viewport = {
