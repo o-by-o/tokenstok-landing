@@ -646,16 +646,16 @@ export function Landing() {
         {/* HERO */}
         <header className="hero">
           <div className="wrap">
-            <div className="eyebrow">218 нейросетей · chatgpt, claude, gemini, deepseek · без vpn</div>
+            <div className="eyebrow">181 нейросеть · chatgpt, claude, gemini, deepseek · без vpn</div>
             <h1 className="title">
               Все нейросети<br/>в одном чате.<br/>
               <em><span>Без</span></em> VPN.<br/>Платишь за ответ.
             </h1>
-            <p className="lede">ChatGPT, Claude, Gemini, DeepSeek и ещё 200+ нейросетей на русском — в одном окне, без VPN, без подписки. Оплата картой РФ или СБП. Первые 100 ₽ — за наш счёт.</p>
+            <p className="lede">ChatGPT, Claude, Gemini, DeepSeek и ещё 180 нейросетей на русском — в одном окне, без VPN, без подписки. Оплата картой РФ или СБП.</p>
             <div className="hero-ctas">
               <a href="#" className="btn solid">Спросить нейросеть <span className="arr">→</span></a>
-              <a href="#catalog" className="btn">Все 218 нейросетей</a>
-              <span className="hero-note">первые 100 ₽ — наш счёт</span>
+              <a href="#catalog" className="btn">Все 181 нейросеть</a>
+              <span className="hero-note">от 100 ₽ — карта РФ или СБП</span>
             </div>
             <DemoTypewriter/>
           </div>
@@ -683,12 +683,12 @@ export function Landing() {
             <div className="section-head">
               <div className="left">
                 <div className="num">01 · каталог</div>
-                <h2>218 нейросетей.<br/>Один счёт&nbsp;в&nbsp;рублях.</h2>
+                <h2>181 нейросеть.<br/>Один счёт&nbsp;в&nbsp;рублях.</h2>
                 <p className="lede">Нейросеть для текста, фото, картинок, песен, презентаций, кода. Выбирай любую в одно касание — платишь только за то, что спросил. Новые нейросети добавляем каждую неделю.</p>
               </div>
             </div>
             <div className="cat-controls">
-              <button className="active">Все · 218</button>
+              <button className="active">Все · 181</button>
               <button>Текст · 84</button>
               <button>Фото · 41</button>
               <button>Код · 22</button>
@@ -696,7 +696,7 @@ export function Landing() {
               <button>Голос · 18</button>
               <button>Видео · 11</button>
               <button>Презентации · 8</button>
-              <span className="count">показано 9 из 218</span>
+              <span className="count">показано 9 из 181</span>
             </div>
             <div className="grid">
               {MODELS.map((m, i) => (
@@ -717,7 +717,7 @@ export function Landing() {
               ))}
             </div>
             <div className="more">
-              <a href="#" className="btn">Смотреть все 218 моделей <span className="arr">→</span></a>
+              <a href="#" className="btn">Смотреть все 181 модель <span className="arr">→</span></a>
             </div>
           </div>
         </section>
@@ -761,23 +761,23 @@ export function Landing() {
               <div className="left">
                 <div className="num">03 · цены</div>
                 <h2>Никаких подписок.<br/>Платишь только за ответ.</h2>
-                <p className="lede">Цена один в один к нейросети + 0% сверху на первые 10&nbsp;000 ₽. Дальше — 4%. И всё. Никаких ежемесячных списаний, минималок, «годовых пакетов».</p>
+                <p className="lede">Кладёшь деньги на счёт — тратятся только когда ты пишешь нейросети. Без подписок, без минимальных платежей, без «годовых пакетов». Рублёвый счёт, чек на e-mail.</p>
               </div>
             </div>
             <div className="pricing">
               <div className="price-card featured">
                 <div className="ribbon">рекомендуем</div>
                 <h3>Платишь&nbsp;за&nbsp;ответ</h3>
-                <div className="big">0<sup>%</sup></div>
-                <div className="sub">наценки до 10 000 ₽ расхода. После — 4%.</div>
+                <div className="big">от&nbsp;0,38<sup>₽</sup></div>
+                <div className="sub">за 1000 слов. Цена видна перед каждым ответом.</div>
                 <ul>
-                  <li>218 нейросетей в одном чате</li>
-                  <li>Цены — один в один с оригиналом</li>
+                  <li>181 нейросеть в одном чате</li>
+                  <li>Рублёвый счёт, чек на e-mail</li>
                   <li>Без подписок и минимальных платежей</li>
                   <li>Закрытие счёта в один клик, остаток возвращается</li>
                   <li>История трат — на чём и сколько потратил</li>
                 </ul>
-                <button className="price-btn">Положить 100 ₽ <span className="arr">→</span></button>
+                <button className="price-btn">Открыть кошелёк <span className="arr">→</span></button>
               </div>
               <div className="price-card">
                 <h3>Команда</h3>
@@ -788,7 +788,7 @@ export function Landing() {
                   <li>Лимиты и роли участников</li>
                   <li>Отдельные счета по проектам</li>
                   <li>Вход через Яндекс ID и корпоративный e-mail</li>
-                  <li>Аптайм 99,95% и приоритетная поддержка</li>
+                  <li>Сводный отчёт по тратам команды</li>
                 </ul>
                 <button className="price-btn">Подключить команду <span className="arr">→</span></button>
               </div>
@@ -802,7 +802,7 @@ export function Landing() {
             <div className="section-head">
               <div className="left">
                 <div className="num">04 · отзывы</div>
-                <h2>2 400 человек<br/>уже спрашивают.</h2>
+                <h2>Первые<br/>отзывы.</h2>
               </div>
             </div>
             <div className="quotes">
@@ -837,16 +837,16 @@ export function Landing() {
               <div>
                 <dl>
                   {[
-                    { q: "Работает без VPN из России?", a: "Да. ChatGPT, Claude, Gemini, DeepSeek и остальные 200+ нейросетей открываются прямо с домашнего интернета. Никаких прокси, никаких иностранных аккаунтов — заходишь на tokenstok.ru и пишешь.", open: true },
+                    { q: "Работает без VPN из России?", a: "Да. ChatGPT, Claude, Gemini, DeepSeek и остальные нейросети открываются прямо с домашнего интернета. Никаких прокси, никаких иностранных аккаунтов — заходишь на tokenstok.ru и пишешь.", open: true },
                     { q: "Можно оплатить картой РФ или СБП?", a: "Да, и то и другое. Карты Мир, Visa и Mastercard российских банков, а также СБП. Чек присылаем на e-mail, для самозанятых и ИП — закрывающие документы. Иностранные карты и крипта не нужны." },
                     { q: "А правда без подписок?", a: "Правда. Никакого ежемесячного списания, никакого «забыл отменить пробный период». Деньги лежат на счёте — тратятся только когда ты сам пишешь нейросети. Не пользуешься неделю — не платишь ничего." },
-                    { q: "Какие нейросети есть, и все ли на русском?", a: "ChatGPT-5, Claude Sonnet 4.5, Claude Haiku, Gemini 2.5 Pro, DeepSeek R1, Llama 4, Mistral Large 3, DALL·E 4 (картинки), Suno (песни) и ещё больше двухсот. Все понимают и отвечают на русском без потери качества — переключаешься между ними в одно касание." },
-                    { q: "Чем это лучше прямого ChatGPT?", a: "Цены — те же самые, один в один. Плюс не надо VPN и иностранной карты, плюс по тому же счёту ещё 217 нейросетей (Claude, Gemini, DeepSeek, картинки, музыка), плюс рублёвый счёт и чек для бухгалтерии." },
-                    { q: "Сколько стоит один вопрос нейросети?", a: "Зависит от нейросети и длины ответа. ChatGPT-5 — около 3 копеек за обычный диалог, Claude Haiku — около 0,4 копейки, картинка DALL·E — 3,40 ₽. На 100 ₽ получается несколько сотен вопросов или десятки картинок. Точную цену видно перед отправкой." },
-                    { q: "А как с задержкой ответа?", a: "Серверы у нас в трёх регионах (Москва, Амстердам, Сингапур). Оверхед — 20-40 мс. На глаз незаметно: первое слово ответа прилетает так же быстро, как от нейросети напрямую." },
+                    { q: "Какие нейросети есть, и все ли на русском?", a: "GPT-5, Claude Sonnet 4.5, Claude Haiku, Gemini 2.5 Pro, DeepSeek R1, Llama 4, Mistral Large 3, DALL·E 4 (картинки), Suno (песни) — всего 181 модель. Все понимают и отвечают на русском без потери качества — переключаешься между ними в одно касание." },
+                    { q: "Чем это лучше прямого ChatGPT?", a: "Не нужен VPN и иностранная карта. По одному счёту — ещё 180 нейросетей (Claude, Gemini, DeepSeek, картинки, музыка). Рублёвый счёт и чек на e-mail — для самозанятых, ИП и бухгалтерии." },
+                    { q: "Сколько стоит один вопрос нейросети?", a: "Зависит от нейросети и длины ответа. GPT-5 — около 3 копеек за обычный диалог, Claude Haiku — около 0,4 копейки, картинка DALL·E — 3,40 ₽. На 100 ₽ получается несколько сотен вопросов или десятки картинок. Точную цену видно перед отправкой." },
+                    { q: "А как с задержкой ответа?", a: "Серверы в России. Оверхед — 20-40 мс. На глаз незаметно: первое слово ответа прилетает так же быстро, как от нейросети напрямую." },
                     { q: "Что с моими данными?", a: "Запросы и ответы не сохраняем — только метаданные для биллинга (нейросеть, длина ответа, время). Опционально включаешь сохранение истории в свой аккаунт, тогда она шифруется." },
                     { q: "Можно ли вывести остаток?", a: "Да, в любой момент. Открываешь настройки → «закрыть счёт», деньги уходят обратно на ту же карту в течение 1-3 рабочих дней. Без вопросов и удержаний." },
-                    { q: "Подходит для работы и учёбы?", a: "Да. Аптайм 99,95%, автоматические повторы при сетевых ошибках, резервные нейросети если основная упала. Используют и для бизнеса, и для домашних задач, и для учёбы." },
+                    { q: "Подходит для работы и учёбы?", a: "Да. Автоматические повторы при сетевых ошибках, резервные нейросети если основная упала. Используют и для бизнеса, и для домашних задач, и для учёбы." },
                   ].map((d, i) => (
                     <details key={i} open={d.open || undefined}>
                       <summary>{d.q} <span className="sign"/></summary>
@@ -863,7 +863,7 @@ export function Landing() {
         <section className="cta-section">
           <div className="wrap">
             <h2>Спроси нейросеть.<br/>Получи ответ.</h2>
-            <p className="lede">100 ₽ при регистрации — наш подарок, чтобы ты попробовал. Без VPN, без иностранных карт, без подписок. Регистрация — по номеру телефона.</p>
+            <p className="lede">Без VPN, без иностранных карт, без подписок. Регистрация — по номеру телефона. Кладёшь от 100 ₽ и пишешь.</p>
             <form className="signup" onSubmit={(e) => e.preventDefault()}>
               <input type="email" placeholder="ты@пример.рф" />
               <button type="submit">Открыть кошелёк <span className="arr">→</span></button>
@@ -878,7 +878,7 @@ export function Landing() {
             <div className="row">
               <div className="col">
                 <a href="#" style={{ color:"var(--bg)" }}><Logo/></a>
-                <p className="tag-line">Все нейросети на русском. ChatGPT, Claude, Gemini, DeepSeek и ещё 200+ — без VPN, без подписки, оплата из России.</p>
+                <p className="tag-line">Все нейросети на русском. ChatGPT, Claude, Gemini, DeepSeek и ещё 180 моделей — без VPN, без подписки, оплата из России.</p>
               </div>
               <div className="col">
                 <h4>Продукт</h4>
@@ -908,8 +908,8 @@ export function Landing() {
               </div>
             </div>
             <div className="legal">
-              <span>© 2026 ТокенСток · ИП Петров А. А. · ИНН 7700000000</span>
-              <span>сделано в Москве с уважением к токенам</span>
+              <span>© 2026 ТокенСток · реквизиты появятся после регистрации</span>
+              <span>сделано с уважением к токенам</span>
             </div>
           </div>
         </footer>
