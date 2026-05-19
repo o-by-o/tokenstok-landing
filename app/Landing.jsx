@@ -400,7 +400,7 @@ const STYLE = `
 
   /* ── mobile adaptation ───────────────────────────────────────────── */
   @media (max-width: 720px){
-    .lp-root .wrap{ padding: 0 24px; }
+    .lp-root .wrap{ padding: 0 32px; }
 
     .lp-root nav.top .row{ padding: 14px 0; gap: 12px; }
     .lp-root nav.top .cta{ gap: 8px; }
@@ -476,7 +476,7 @@ const STYLE = `
   }
 
   @media (max-width: 420px){
-    .lp-root .wrap{ padding: 0 18px; }
+    .lp-root .wrap{ padding: 0 22px; }
     .lp-root nav.top .row{ gap: 8px; }
     .lp-root nav.top .tk-tag{ display: none; }
     .lp-root .theme-toggle{
