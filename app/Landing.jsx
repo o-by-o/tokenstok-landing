@@ -108,9 +108,11 @@ const STYLE = `
     padding:14px 18px; border-bottom:1px solid var(--line-2);
     font-family:var(--mono); font-size:12px; color:var(--mute); background: var(--paper);
   }
-  .lp-root .demo-head .dots{ display:flex; gap:6px; }
+  .lp-root .demo-head .dots{ display:flex; gap:6px; flex-shrink:0; }
   .lp-root .demo-head .dots span{ width:9px; height:9px; border-radius:50%; background: var(--mute-2); }
   .lp-root .demo-head .dots span:nth-child(1){ background: var(--ink); }
+  .lp-root .demo-subtitle{ min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .lp-root .demo-cost{ white-space:nowrap; flex-shrink:0; }
   .lp-root .demo-body{
     padding: 24px 28px 28px; min-height: 200px;
     display:flex; flex-direction:column; gap:14px;
@@ -419,8 +421,9 @@ const STYLE = `
     .lp-root .hero-note{ flex-basis: 100%; margin-left: 2px; }
 
     .lp-root .demo{ margin-top: 40px; border-radius: 14px; }
-    .lp-root .demo-head{ padding: 11px 14px; font-size: 11px; gap: 10px; }
-    .lp-root .demo-head .dots span{ width:7px; height:7px; }
+    .lp-root .demo-head{ padding: 12px 14px; font-size: 11px; gap: 10px; }
+    .lp-root .demo-head .dots span{ width:8px; height:8px; }
+    .lp-root .demo-subtitle{ display: none; }
     .lp-root .demo-body{ padding: 18px 16px 20px; font-size: 15px; gap: 12px; }
     .lp-root .demo-q{ font-size: 14px; max-width: 88%; }
     .lp-root .demo-a{ font-size: 13.5px; }
@@ -571,8 +574,8 @@ function DemoTypewriter() {
     <div className="demo" id="demo">
       <div className="demo-head">
         <div className="dots"><span/><span/><span/></div>
-        <span>пример · gpt-5 → claude-sonnet-4.5</span>
-        <span>{cost.toFixed(4).replace(".", ",")} ₽</span>
+        <span className="demo-subtitle">пример · gpt-5 → claude-sonnet-4.5</span>
+        <span className="demo-cost">{cost.toFixed(4).replace(".", ",")}&nbsp;₽</span>
       </div>
       <div className="demo-body">
         <div className="demo-q">{q}</div>
