@@ -205,7 +205,7 @@ const STYLE = `
     margin-top: 14px;
     display:flex; align-items:center; justify-content:space-between;
     padding: 10px 14px; border-radius: 999px; border:1px solid var(--ink);
-    background: transparent; cursor:pointer;
+    background: transparent; color: var(--ink); cursor:pointer;
     font-family: var(--sans); font-weight:600; font-size:13px;
     transition: all .15s ease;
   }
