@@ -33,7 +33,7 @@ export function middleware(request) {
     status: 401,
     headers: {
       "WWW-Authenticate":
-        'Basic realm="ТокенСток · инвестиционное предложение", charset="UTF-8"',
+        'Basic realm="TokenStok investors", charset="UTF-8"',
     },
   });
 }
