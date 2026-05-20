@@ -402,7 +402,7 @@ const STYLE = `
   @media (max-width: 720px){
     .lp-root .wrap{ padding: 0 60px; }
 
-    .lp-root nav.top .row{ padding: 14px 0; gap: 12px; }
+    .lp-root nav.top .row{ padding: 14px 16px; gap: 12px; }
     .lp-root nav.top .cta{ gap: 8px; }
     .lp-root nav.top .cta .btn.solid{ display: none; }
     .lp-root nav.top .cta .btn{ padding: 8px 14px; font-size: 13px; }
