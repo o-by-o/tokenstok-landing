@@ -17,7 +17,7 @@ const jetbrains = JetBrains_Mono({
 
 export const metadata = {
   title: "Все нейросети на русском, без VPN и подписок — ТокенСток",
-  description: "ChatGPT, Claude, Gemini, DeepSeek и ещё 200+ нейросетей на русском — в одном чате, без VPN. Оплата картой РФ или СБП. Первые 100 ₽ бесплатно.",
+  description: "ChatGPT, Claude, Gemini, DeepSeek и ещё 180 нейросетей на русском — в одном чате, без VPN, без подписки. Оплата картой РФ или СБП. Платишь только за ответ.",
 };
 
 export const viewport = {
