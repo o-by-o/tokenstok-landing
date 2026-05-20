@@ -39,5 +39,5 @@ export function middleware(request) {
 }
 
 export const config = {
-  matcher: ["/investors", "/investors/:path*"],
+  matcher: ["/investors", "/investors.html", "/investors/:path*"],
 };
