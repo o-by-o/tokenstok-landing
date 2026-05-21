@@ -1,0 +1,1903 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>TOKENSTOK — AI 代币商店经济模型</title>
+<style>
+/* === FONTS (locally) ================================================= */
+@font-face{font-family:'Inter';font-weight:400;font-style:normal;font-display:swap;src:url('fonts/Inter-Regular.woff2') format('woff2')}
+@font-face{font-family:'Inter';font-weight:500;font-style:normal;font-display:swap;src:url('fonts/Inter-Medium.woff2') format('woff2')}
+@font-face{font-family:'Inter';font-weight:600;font-style:normal;font-display:swap;src:url('fonts/Inter-SemiBold.woff2') format('woff2')}
+@font-face{font-family:'Inter';font-weight:700;font-style:normal;font-display:swap;src:url('fonts/Inter-Bold.woff2') format('woff2')}
+@font-face{font-family:'Inter';font-weight:900;font-style:normal;font-display:swap;src:url('fonts/Inter-Bold.woff2') format('woff2')}
+@font-face{font-family:'JetBrains Mono';font-weight:400;src:url('fonts/JetBrainsMono-Regular.woff2') format('woff2')}
+@font-face{font-family:'JetBrains Mono';font-weight:500;src:url('fonts/JetBrainsMono-Medium.woff2') format('woff2')}
+@font-face{font-family:'JetBrains Mono';font-weight:600;src:url('fonts/JetBrainsMono-SemiBold.woff2') format('woff2')}
+@font-face{font-family:'JetBrains Mono';font-weight:700;src:url('fonts/JetBrainsMono-SemiBold.woff2') format('woff2')}
+
+:root{
+  --paper:#F0E6D0;
+  --paper-2:#E5DBC2;
+  --paper-3:#DCD0B4;
+  --fg:#0D0D0D;
+  --fg-2:#2A2620;
+  --muted:#5C544A;
+  --subtle:#8B8478;
+  --line:#0D0D0D;
+  --line-soft:#A89F8C;
+  --red:#C8302A;
+  --red-deep:#A22018;
+  --ochre:#E8B82E;
+  --ochre-deep:#C49A20;
+  --ok:#3D7A4A;
+  --font-ui:'Inter',ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --font-mono:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{
+  background:var(--paper);
+  color:var(--fg);
+  font-family:var(--font-ui);
+  font-size:16px;
+  line-height:1.45;
+  font-weight:500;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  position:relative;
+  overflow-x:hidden;
+}
+body::before{
+  content:"";position:fixed;inset:0;
+  background-image:radial-gradient(rgba(13,13,13,.025) 1px, transparent 1px);
+  background-size:5px 5px;pointer-events:none;z-index:0;
+}
+body > *{position:relative;z-index:1}
+a{color:inherit;text-decoration:none}
+button{font:inherit;cursor:pointer;background:none;border:none;color:inherit}
+input,select{font:inherit;color:inherit}
+.mono,.num{font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+
+/* === LAYOUT =========================================================== */
+.wrap{max-width:1320px;margin:0 auto;padding:0 32px}
+@media(max-width:760px){.wrap{padding:0 18px}}
+
+/* === TOP STRIP ======================================================== */
+.strip{
+  background:var(--fg);color:var(--paper);
+  padding:8px 32px;
+  display:flex;gap:24px;flex-wrap:wrap;
+  font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+  border-bottom:6px solid var(--red);
+  position:sticky;top:0;z-index:50;
+}
+.strip b{color:var(--ochre);font-weight:800}
+.strip .spacer{flex:1}
+@media(max-width:760px){.strip{font-size:10px;gap:14px;padding:8px 18px}}
+
+/* === NAV ============================================================== */
+.nav{
+  background:var(--paper);
+  border-bottom:3px solid var(--line);
+  position:sticky;top:31px;z-index:49;
+}
+@media(max-width:760px){.nav{position:static}}
+.nav-row{
+  max-width:1380px;margin:0 auto;padding:14px 32px;
+  display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:24px;
+}
+@media(max-width:760px){.nav-row{padding:12px 18px;grid-template-columns:1fr auto}}
+.brand{
+  display:flex;align-items:center;gap:14px;
+  font-weight:900;font-size:24px;letter-spacing:-.02em;text-transform:uppercase;
+}
+.brand-mark{
+  width:44px;height:44px;background:var(--red);
+  display:grid;place-items:center;color:var(--paper);
+  font-weight:900;font-size:20px;letter-spacing:-.04em;
+  position:relative;
+}
+.brand-mark::before{
+  content:"";position:absolute;bottom:-3px;left:-3px;
+  width:100%;height:100%;background:var(--fg);z-index:-1;
+}
+.brand small{
+  display:block;font-family:var(--font-mono);
+  font-size:10px;font-weight:600;letter-spacing:.12em;
+  color:var(--muted);text-transform:uppercase;margin-top:2px;
+}
+.nav-links{display:flex;gap:0;justify-content:center}
+.nav-links a{
+  padding:10px 18px;font-size:12px;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;
+  border-right:1px solid var(--line);transition:background 140ms;
+}
+.nav-links a:first-child{border-left:1px solid var(--line)}
+.nav-links a:hover{background:var(--ochre)}
+@media(max-width:980px){.nav-links{display:none}}
+.nav-cta{display:flex;align-items:center;gap:14px}
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--red);color:var(--paper);border:0;
+  padding:11px 22px;font-size:12px;font-weight:800;
+  letter-spacing:.16em;text-transform:uppercase;
+  position:relative;transition:background 160ms,transform 140ms;
+}
+.btn::before{
+  content:"";position:absolute;top:4px;left:4px;right:-4px;bottom:-4px;
+  background:var(--fg);z-index:-1;transition:transform 160ms;
+}
+.btn:hover{background:var(--red-deep)}
+.btn:hover::before{transform:translate(2px,2px)}
+.btn::after{content:" →";font-weight:900}
+.btn-fg{background:var(--fg);color:var(--paper)}
+.btn-fg::before{background:var(--red)}
+
+/* === HERO ============================================================= */
+.hero{position:relative;padding:80px 0 64px;overflow:hidden;border-bottom:6px solid var(--line)}
+.hero::before{
+  content:"";position:absolute;bottom:-2px;right:-2px;
+  width:60%;height:70%;background:var(--fg);
+  clip-path:polygon(100% 0,100% 100%,0 100%);z-index:0;
+}
+.hero::after{
+  content:"";position:absolute;bottom:18%;right:8%;
+  width:60%;height:14px;background:var(--red);
+  transform:rotate(-12deg);z-index:1;pointer-events:none;
+}
+.hero-grid{
+  display:grid;grid-template-columns:1.4fr 1fr;gap:64px;
+  align-items:end;position:relative;z-index:2;
+}
+@media(max-width:980px){.hero-grid{grid-template-columns:1fr;gap:32px}}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:14px;
+  font-size:11px;font-weight:900;letter-spacing:.22em;text-transform:uppercase;
+  border-bottom:3px solid var(--red);padding-bottom:12px;margin-bottom:24px;
+}
+.eyebrow b{background:var(--red);color:var(--paper);padding:4px 10px;font-weight:900}
+.hero h1{
+  font-weight:900;font-size:clamp(56px,9.5vw,164px);
+  line-height:.86;letter-spacing:-.05em;text-transform:uppercase;text-wrap:balance;
+}
+.hero h1 .red{color:var(--red)}
+.hero h1 .ochre{background:var(--ochre);padding:0 .06em;display:inline-block}
+.hero h1 .underline{text-decoration:underline;text-decoration-thickness:8px;text-decoration-color:var(--red);text-underline-offset:4px}
+.hero-sub{
+  margin-top:28px;max-width:520px;
+  font-size:17px;font-weight:500;line-height:1.5;
+  border-left:4px solid var(--red);padding-left:16px;
+}
+.hero-sub b{font-weight:900}
+
+.stamp{
+  position:relative;background:var(--ochre);
+  border:4px solid var(--fg);padding:28px 24px 24px;
+  transform:rotate(3deg);
+  display:flex;flex-direction:column;gap:8px;
+  align-self:end;margin-bottom:32px;
+  box-shadow:8px 8px 0 var(--fg);
+}
+.stamp::before{content:"★";position:absolute;top:8px;right:12px;color:var(--red);font-size:18px}
+.stamp .lab{font-size:11px;font-weight:900;letter-spacing:.18em;text-transform:uppercase}
+.stamp .num-big{font-size:88px;font-weight:900;letter-spacing:-.06em;line-height:.85}
+.stamp .desc{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.stamp .from{font-family:var(--font-mono);font-size:10.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;border-top:2px solid var(--fg);padding-top:8px;margin-top:4px}
+
+/* === SECTION ========================================================== */
+.section{padding:80px 0;border-bottom:3px solid var(--line)}
+.section-head{
+  display:grid;grid-template-columns:120px 1fr 240px;gap:32px;
+  align-items:end;margin-bottom:48px;padding-bottom:16px;
+  border-bottom:6px solid var(--line);
+}
+@media(max-width:760px){.section-head{grid-template-columns:80px 1fr;gap:18px} .section-head .meta{display:none}}
+.section-no{font-weight:900;font-size:96px;line-height:.85;letter-spacing:-.06em;color:var(--red)}
+.section-head h2{
+  font-weight:900;font-size:clamp(36px,5vw,68px);
+  line-height:.92;letter-spacing:-.04em;text-transform:uppercase;text-wrap:balance;
+}
+.section-head h2 .red{color:var(--red)}
+.section-head h2 .ochre{background:var(--ochre);padding:0 .06em;display:inline-block}
+.section-head .meta{
+  font-size:12px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;
+  text-align:right;border-left:3px solid var(--line);padding-left:16px;
+}
+.section-head .meta b{color:var(--red)}
+
+/* === CALCULATOR ======================================================= */
+.calc{
+  display:grid;grid-template-columns:1fr 1fr;
+  border:3px solid var(--line);
+  background:var(--line);gap:3px;
+}
+@media(max-width:980px){.calc{grid-template-columns:1fr}}
+.calc-form{background:var(--paper);padding:36px 32px}
+.calc-result{
+  background:var(--fg);color:var(--paper);
+  padding:36px 32px;position:relative;overflow:hidden;
+  display:flex;flex-direction:column;gap:24px;
+}
+.calc-result::before{
+  content:"";position:absolute;top:-10%;right:-20%;
+  width:60%;height:16px;background:var(--red);
+  transform:rotate(-15deg);pointer-events:none;
+}
+
+/* form blocks */
+.fblock{margin-bottom:36px}
+.fblock:last-child{margin-bottom:0}
+.fblock h3{
+  font-size:11px;font-weight:900;letter-spacing:.22em;text-transform:uppercase;
+  margin-bottom:18px;padding-bottom:8px;border-bottom:3px solid var(--line);
+  display:flex;justify-content:space-between;align-items:baseline;
+}
+.fblock h3 .num{color:var(--red);font-family:var(--font-mono);font-size:13px}
+
+.field{margin-bottom:22px}
+.field:last-child{margin-bottom:0}
+.field-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;gap:12px}
+.field label{
+  font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+  flex:1;
+}
+.field label::before{
+  content:"";display:inline-block;width:14px;
+  border-top:3px solid var(--red);
+  transform:translateY(-4px);margin-right:8px;
+}
+.field-value{
+  font-weight:900;font-size:24px;letter-spacing:-.025em;color:var(--red);
+  font-variant-numeric:tabular-nums;white-space:nowrap;
+}
+.field .hint{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.04em;color:var(--muted);text-transform:uppercase;margin-top:6px;font-weight:600}
+
+/* slider */
+.slider{
+  width:100%;-webkit-appearance:none;appearance:none;
+  background:transparent;height:28px;
+}
+.slider::-webkit-slider-runnable-track{
+  height:4px;
+  background:linear-gradient(to right,
+    var(--red) 0%,var(--red) var(--p,30%),
+    var(--line-soft) var(--p,30%),var(--line-soft) 100%);
+}
+.slider::-moz-range-track{height:4px;background:var(--line-soft)}
+.slider::-moz-range-progress{height:4px;background:var(--red)}
+.slider::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;
+  width:18px;height:18px;
+  background:var(--fg);border:3px solid var(--red);
+  cursor:pointer;margin-top:-10px;
+  transition:transform 140ms;
+}
+.slider::-moz-range-thumb{
+  width:14px;height:14px;background:var(--fg);border:3px solid var(--red);cursor:pointer;
+}
+.slider:active::-webkit-slider-thumb{transform:scale(1.2)}
+.ticks{
+  display:flex;justify-content:space-between;
+  font-family:var(--font-mono);font-size:10.5px;
+  font-weight:700;color:var(--muted);margin-top:8px;letter-spacing:.06em;
+}
+
+/* mix tiles */
+.tile-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:3px solid var(--line)}
+.tile{
+  background:var(--paper);border-right:3px solid var(--line);
+  padding:14px 12px;cursor:default;
+  display:flex;flex-direction:column;gap:6px;
+}
+.tile:last-child{border-right:0}
+.tile-name{font-weight:900;font-size:18px;letter-spacing:-.025em;text-transform:uppercase}
+.tile .pct{font-family:var(--font-mono);font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--muted)}
+.tile.warn{background:#F2C8C2}
+
+.mix-row{
+  margin-top:18px;display:grid;grid-template-columns:1fr;gap:0;
+  border:3px solid var(--line);background:var(--line);
+}
+.mix-cell{
+  background:var(--paper);padding:14px 16px;
+  border-bottom:3px solid var(--line);
+  display:flex;flex-direction:column;gap:4px;
+}
+.mix-cell:last-child{border-bottom:0}
+.mix-cell:nth-child(2){background:var(--paper-2)}
+.mix-cell-h{
+  font-size:11px;font-weight:900;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--red);margin-bottom:6px;
+}
+
+.mix-bar{display:flex;height:10px;border:3px solid var(--line);margin-top:14px;overflow:hidden}
+.mix-bar > div{height:100%}
+.mix-bar .a{background:var(--red)}
+.mix-bar .b{background:var(--ochre)}
+.mix-bar .c{background:var(--fg)}
+
+/* number stepper for inputs that aren't sliders */
+.stepper{
+  display:flex;align-items:stretch;
+  border:3px solid var(--line);background:var(--paper);
+  width:max-content;
+}
+.stepper button{
+  width:36px;background:var(--paper);border:0;border-right:3px solid var(--line);
+  font-weight:900;font-size:18px;color:var(--fg);
+  transition:background 120ms;
+}
+.stepper button:last-of-type{border-right:0;border-left:3px solid var(--line)}
+.stepper button:hover{background:var(--ochre)}
+.stepper input{
+  width:90px;border:0;background:transparent;text-align:center;
+  font-family:var(--font-mono);font-weight:700;font-size:15px;outline:none;
+  -moz-appearance:textfield;
+}
+.stepper input::-webkit-outer-spin-button,
+.stepper input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+
+/* === RESULT PANEL ===================================================== */
+.result-h{
+  font-size:11px;font-weight:900;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--ochre);margin-bottom:10px;
+  border-bottom:3px solid rgba(240,230,208,.35);padding-bottom:10px;
+  display:flex;justify-content:space-between;position:relative;z-index:1;
+}
+.result-price{
+  font-weight:900;font-size:clamp(56px,8vw,108px);
+  line-height:.85;letter-spacing:-.06em;
+  font-variant-numeric:tabular-nums;color:var(--paper);
+  position:relative;z-index:1;text-transform:uppercase;
+}
+.result-price small{
+  font-weight:900;font-size:.28em;color:var(--red);
+  margin-left:12px;letter-spacing:0;vertical-align:super;
+}
+.result-price.neg{color:#E89F94}
+.result-sub{
+  font-family:var(--font-mono);font-size:11px;font-weight:600;
+  letter-spacing:.08em;color:rgba(240,230,208,.7);text-transform:uppercase;
+  margin-top:6px;
+}
+
+.result-table{
+  width:100%;border-collapse:collapse;margin-top:16px;
+  font-family:var(--font-mono);font-size:12px;font-weight:600;
+  position:relative;z-index:1;
+}
+.result-table tr{border-bottom:1px solid rgba(240,230,208,.18)}
+.result-table tr.sep{border-top:3px solid var(--ochre)}
+.result-table td{padding:9px 0;color:rgba(240,230,208,.78)}
+.result-table td:last-child{text-align:right;color:var(--paper);font-weight:700}
+.result-table tr.total td{
+  font-family:var(--font-ui);font-weight:900;font-size:13px;
+  text-transform:uppercase;letter-spacing:.06em;
+  padding-top:14px;color:var(--paper);
+}
+.result-table tr.total td:last-child{color:var(--ochre);font-size:16px}
+.result-table tr.total.bad td:last-child{color:#E89F94}
+
+.result-cta{
+  margin-top:auto;border-top:3px solid rgba(240,230,208,.18);
+  padding-top:16px;display:flex;flex-direction:column;gap:8px;
+  position:relative;z-index:1;
+}
+
+/* badges in result */
+.badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;position:relative;z-index:1}
+.badge{
+  font-size:11px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;
+  padding:6px 10px;background:var(--paper);color:var(--fg);
+}
+.badge.good{background:var(--ochre)}
+.badge.mid{background:var(--paper-2)}
+.badge.bad{background:var(--red);color:var(--paper)}
+
+/* === CLOUD.RU SUMMARY ================================================= */
+.cloud-summary{
+  background:var(--fg);color:var(--paper);
+  padding:16px 18px;margin-bottom:22px;
+  border:3px solid var(--line);position:relative;
+}
+.cloud-summary::before{
+  content:"CLOUD.RU · MONTH 12";
+  position:absolute;top:-3px;right:-3px;
+  background:var(--ochre);color:var(--fg);
+  padding:4px 10px;font-size:10px;font-weight:900;letter-spacing:.16em;text-transform:uppercase;
+}
+.cloud-summary .total{
+  font-weight:900;font-size:32px;letter-spacing:-.03em;color:var(--ochre);
+  font-variant-numeric:tabular-nums;line-height:1;margin-bottom:10px;
+}
+.cloud-summary .total small{font-size:.4em;color:var(--paper);margin-left:4px}
+.cloud-summary .breakdown{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:6px 16px;
+  font-family:var(--font-mono);font-size:11px;font-weight:600;letter-spacing:.04em;
+}
+.cloud-summary .breakdown div{display:flex;justify-content:space-between;color:rgba(240,230,208,.85)}
+.cloud-summary .breakdown b{color:var(--paper);font-weight:700}
+.cloud-summary .specs{
+  margin-top:10px;padding-top:10px;border-top:2px solid rgba(240,230,208,.2);
+  font-family:var(--font-mono);font-size:11px;font-weight:700;
+  color:var(--ochre);letter-spacing:.06em;text-transform:uppercase;
+}
+
+/* === KPI POSTERS ====================================================== */
+.kpis{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:0;
+  border:3px solid var(--line);background:var(--line);margin-top:32px;
+}
+@media(max-width:980px){.kpis{grid-template-columns:repeat(2,1fr);gap:3px}}
+.kpi{
+  background:var(--paper);padding:24px 22px 22px;
+  display:flex;flex-direction:column;gap:8px;position:relative;
+  border-right:3px solid var(--line);
+}
+.kpi:last-child{border-right:0}
+.kpi:nth-child(2){background:var(--ochre)}
+.kpi:nth-child(3){background:var(--fg);color:var(--paper)}
+.kpi:nth-child(3) .kpi-lab{color:var(--ochre)}
+.kpi:nth-child(3) .kpi-sub{color:rgba(240,230,208,.65)}
+.kpi:nth-child(4){background:var(--red);color:var(--paper)}
+.kpi:nth-child(4) .kpi-lab{color:var(--paper)}
+.kpi:nth-child(4) .kpi-sub{color:rgba(240,230,208,.85)}
+.kpi-lab{font-size:11px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+.kpi-val{font-weight:900;font-size:42px;letter-spacing:-.04em;line-height:.95;font-variant-numeric:tabular-nums}
+.kpi-val small{font-size:.45em;font-weight:900;margin-left:4px}
+.kpi-sub{font-family:var(--font-mono);font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+
+/* === CHART ============================================================ */
+.chart-wrap{
+  border:3px solid var(--line);background:var(--paper);
+  padding:24px 28px 16px;margin-top:32px;
+}
+.chart-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:12px;flex-wrap:wrap;gap:12px}
+.chart-head h4{font-size:11px;font-weight:900;letter-spacing:.22em;text-transform:uppercase}
+.chart-legend{display:flex;gap:14px;font-family:var(--font-mono);font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.chart-legend i{display:inline-block;width:14px;height:3px;vertical-align:3px;margin-right:6px}
+svg.chart{display:block;width:100%;height:300px}
+.chart-axis text{fill:var(--muted);font-size:10px;font-family:var(--font-mono);font-weight:700}
+.chart-grid line{stroke:var(--line-soft);stroke-dasharray:2 3}
+
+/* === P&L TABLE ======================================================== */
+.toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:12px}
+.toggle{display:inline-flex;border:3px solid var(--line)}
+.toggle button{
+  padding:8px 16px;font-size:12px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;
+  background:var(--paper);
+}
+.toggle button + button{border-left:3px solid var(--line)}
+.toggle button.on{background:var(--fg);color:var(--paper)}
+.legend-line{display:flex;gap:14px;font-family:var(--font-mono);font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+
+.table-wrap{border:3px solid var(--line);overflow-x:auto;background:var(--paper)}
+table.pnl{width:100%;border-collapse:collapse;font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-size:12.5px;min-width:840px}
+table.pnl th,table.pnl td{padding:10px 14px;text-align:right;border-bottom:1px solid var(--line-soft);white-space:nowrap}
+table.pnl th:first-child,table.pnl td:first-child{text-align:left;font-family:var(--font-ui);font-weight:700;font-size:12px;letter-spacing:.04em;text-transform:uppercase;background:var(--paper-2)}
+table.pnl thead th{background:var(--fg);color:var(--paper);font-family:var(--font-ui);font-weight:900;font-size:11px;letter-spacing:.16em;text-transform:uppercase}
+table.pnl thead th:first-child{background:var(--fg);color:var(--ochre)}
+table.pnl tr.sec td{
+  background:var(--ochre);color:var(--fg);
+  font-family:var(--font-ui);font-weight:900;font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+}
+table.pnl tr.sec td:first-child{background:var(--ochre)}
+table.pnl tr.total td{
+  background:var(--fg);color:var(--paper);font-weight:900;
+  font-family:var(--font-ui);font-size:12px;letter-spacing:.08em;text-transform:uppercase;
+  border-top:3px solid var(--red);border-bottom:0;
+}
+table.pnl tr.total td:first-child{background:var(--fg);color:var(--ochre)}
+table.pnl tr.total td.pos{color:var(--ochre)}
+table.pnl tr.total td.neg{color:#E89F94}
+
+/* === PACKAGES ========================================================= */
+.pkgs{
+  display:grid;grid-template-columns:repeat(5,1fr);gap:0;
+  border:3px solid var(--line);background:var(--line);
+}
+@media(max-width:980px){.pkgs{grid-template-columns:repeat(2,1fr);gap:3px}}
+@media(max-width:560px){.pkgs{grid-template-columns:1fr;gap:3px}}
+.pkg{
+  background:var(--paper);padding:24px 22px 22px;
+  display:flex;flex-direction:column;gap:10px;
+  border-right:3px solid var(--line);position:relative;
+  transition:background 200ms;
+}
+.pkg:last-child{border-right:0}
+.pkg:hover{background:var(--paper-2)}
+.pkg:nth-child(3){background:var(--ochre)}
+.pkg:nth-child(3):hover{background:#F0C73E}
+.pkg-name{
+  position:absolute;top:0;left:0;
+  background:var(--fg);color:var(--paper);
+  padding:6px 14px;font-size:11px;font-weight:900;letter-spacing:.16em;text-transform:uppercase;
+}
+.pkg:nth-child(3) .pkg-name{background:var(--red)}
+.pkg-price{margin-top:36px;font-weight:900;font-size:42px;letter-spacing:-.04em;line-height:.9;font-variant-numeric:tabular-nums}
+.pkg-price small{font-size:.35em;font-weight:800;color:var(--muted);margin-left:4px}
+.pkg-row{display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;padding-top:10px;border-top:3px solid var(--line);margin-top:auto}
+.pkg-row b{color:var(--ok);font-weight:800}
+.pkg-tokens{font-family:var(--font-mono);font-size:11px;font-weight:600;color:var(--fg-2);letter-spacing:.04em}
+
+/* === CLOSED tag ======================================================= */
+.closed-row{
+  display:flex;align-items:center;gap:12px;
+  background:var(--ochre);color:var(--fg);
+  padding:10px 14px;margin-bottom:18px;
+  border:3px solid var(--line);
+  font-size:13px;font-weight:700;letter-spacing:.02em;
+}
+.closed-tag{
+  background:var(--fg);color:var(--ochre);
+  padding:4px 8px;font-size:10px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;
+  white-space:nowrap;
+}
+
+/* === INVESTMENT ======================================================= */
+.invest-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  border:3px solid var(--line);background:var(--line);gap:3px;
+}
+@media(max-width:980px){.invest-grid{grid-template-columns:1fr}}
+.invest-form{background:var(--paper);padding:36px 32px}
+.invest-result{
+  background:var(--fg);color:var(--paper);padding:36px 32px;
+  position:relative;overflow:hidden;
+  display:flex;flex-direction:column;gap:24px;
+}
+.invest-result::before{
+  content:"";position:absolute;top:-10%;left:-20%;
+  width:60%;height:16px;background:var(--ochre);
+  transform:rotate(15deg);pointer-events:none;
+}
+.invest-result::after{
+  content:"";position:absolute;bottom:-10%;right:-20%;
+  width:60%;height:16px;background:var(--red);
+  transform:rotate(-12deg);pointer-events:none;
+}
+
+/* === ABOUT GRID ======================================================= */
+.about{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:3px solid var(--line);background:var(--line)}
+@media(max-width:980px){.about{grid-template-columns:1fr;gap:3px}}
+.about-cell{background:var(--paper);padding:32px 28px;border-right:3px solid var(--line);display:flex;flex-direction:column;gap:14px}
+.about-cell:last-child{border-right:0}
+.about-cell:nth-child(2){background:var(--paper-2)}
+.about-no{font-weight:900;font-size:64px;letter-spacing:-.06em;color:var(--red);line-height:.85}
+.about-h{font-weight:900;font-size:18px;letter-spacing:.06em;text-transform:uppercase}
+.about-txt{font-size:14px;line-height:1.55;color:var(--fg-2)}
+.about-txt code{font-family:var(--font-mono);background:var(--fg);color:var(--ochre);padding:1px 6px;font-size:12px}
+
+/* === FOOTER =========================================================== */
+footer{
+  background:var(--fg);color:var(--paper);
+  padding:48px 0 32px;margin-top:0;
+}
+.footer-row{display:flex;justify-content:space-between;flex-wrap:wrap;gap:24px;align-items:end}
+.footer-row .left{font-weight:900;font-size:32px;letter-spacing:-.03em;text-transform:uppercase;line-height:.95}
+.footer-row .left b{color:var(--red)}
+.footer-row .right{font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;color:rgba(240,230,208,.65);text-transform:uppercase;text-align:right;font-weight:600;line-height:1.6}
+.footer-row .right b{color:var(--ochre);font-weight:700}
+</style>
+</head>
+<body>
+
+<!-- ============= TOP STRIP ============= -->
+<div class="strip">
+  <span>★ AI 代币商店</span>
+  <span>· <b>181</b> 个模型</span>
+  <span>· 数据更新 <b>2026-05-14</b></span>
+  <span class="spacer"></span>
+  <span>批发价格 · 无中间商</span>
+</div>
+
+<!-- ============= NAV ============= -->
+<nav class="nav">
+  <div class="nav-row">
+    <div class="brand">
+      <div class="brand-mark">T</div>
+      <div>
+        TOKENSTOK
+        <small>商店经济模型</small>
+      </div>
+    </div>
+    <div class="nav-links">
+      <a href="#calc">计算器</a>
+      <a href="#forecast">预测</a>
+      <a href="#pnl">P&amp;L</a>
+      <a href="#packages">套餐</a>
+      <a href="#invest">投资</a>
+      <a href="#about">方法</a>
+    </div>
+    <div class="nav-cta">
+      <button class="btn" onclick="resetDefaults()">重置</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ============= HERO ============= -->
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="eyebrow"><b>2026</b><span>计划 — 实际 — 杠杆</span></div>
+      <h1 id="hero-h1" data-final="AI 代币转售&lt;br&gt;能&lt;span class=&quot;red&quot;&gt;赚多少&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;ochre&quot;&gt;利润&lt;/span&gt;&lt;span class=&quot;underline&quot;&gt;？&lt;/span&gt;">
+        <span class="tw-caret" aria-hidden="true"></span>
+      </h1>
+      <p class="hero-sub">
+        一个 API 密钥，<b>181 个模型</b>，加价转售给最终客户。
+        修改左侧参数，右侧立刻重新计算营收、COGS、EBITDA 和单位经济。
+        无需注册，全部在浏览器中运行。
+      </p>
+    </div>
+    <div class="stamp">
+      <span class="lab">目标 LTV/CAC</span>
+      <span class="num-big">≥ 3×</span>
+      <span class="desc">良好的单位经济</span>
+      <span class="from">来源 · B2C SaaS 行业</span>
+    </div>
+  </div>
+</header>
+
+<!-- ============= CALCULATOR ============= -->
+<section class="section" id="calc">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-no">01</div>
+      <h2>计算 <span class="red">利润</span>和 <span class="ochre">支出</span></h2>
+      <div class="meta">修改左侧 <b>参数</b><br>查看右侧结果</div>
+    </div>
+
+    <div class="calc">
+      <!-- ===== FORM (left) ===== -->
+      <div class="calc-form">
+
+        <div class="fblock">
+          <h3><span>A · 参数</span><span class="num">02</span></h3>
+
+          <div class="field">
+            <div class="field-row"><label>USD / RUB 汇率</label><span class="field-value"><span id="vUsd">90</span> ₽</span></div>
+            <input type="range" min="60" max="150" step="1" value="90" id="usd" class="slider" data-min="60" data-max="150">
+            <div class="ticks"><span>60</span><span>90</span><span>120</span><span>150</span></div>
+          </div>
+
+          <div class="field">
+            <div class="field-row"><label>加权平均加价率</label><span class="field-value"><span id="vMarkup">—</span>%</span></div>
+            <div class="hint" id="markupHint">根据下方模型组合自动计算 · 竞争对手 15–40%</div>
+          </div>
+        </div>
+
+        <div class="fblock">
+          <h3><span>B · 模型组合与加价</span><span class="num">03</span></h3>
+          <div class="tile-grid">
+            <div class="tile">
+              <span class="tile-name">高端</span>
+              <span class="pct"><span id="vMixA">25</span>% · 加价 <span id="vMarkA">20</span>%</span>
+            </div>
+            <div class="tile">
+              <span class="tile-name">中端</span>
+              <span class="pct"><span id="vMixB">50</span>% · 加价 <span id="vMarkB">35</span>%</span>
+            </div>
+            <div class="tile">
+              <span class="tile-name">低端</span>
+              <span class="pct"><span id="vMixC">25</span>% · 加价 <span id="vMarkC">60</span>%</span>
+            </div>
+          </div>
+          <div class="mix-bar">
+            <div class="a" id="mixBarA"></div>
+            <div class="b" id="mixBarB"></div>
+            <div class="c" id="mixBarC"></div>
+          </div>
+
+          <div class="mix-row">
+            <div class="mix-cell">
+              <div class="mix-cell-h">高端 · Opus, GPT-5 Pro</div>
+              <div class="field" style="margin:0">
+                <div class="field-row"><label>占比</label><span class="field-value"><span id="vMixA2">25</span>%</span></div>
+                <input type="range" min="0" max="100" step="5" value="25" id="mixA" class="slider">
+              </div>
+              <div class="field" style="margin:8px 0 0">
+                <div class="field-row"><label>加价率</label><span class="field-value"><span id="vMarkA2">20</span>%</span></div>
+                <input type="range" min="0" max="100" step="1" value="20" id="markA" class="slider">
+                <div class="hint">高价模型 · 小幅加价</div>
+              </div>
+            </div>
+            <div class="mix-cell">
+              <div class="mix-cell-h">中端 · Haiku, Flash, mini</div>
+              <div class="field" style="margin:0">
+                <div class="field-row"><label>占比</label><span class="field-value"><span id="vMixB2">50</span>%</span></div>
+                <input type="range" min="0" max="100" step="5" value="50" id="mixB" class="slider">
+              </div>
+              <div class="field" style="margin:8px 0 0">
+                <div class="field-row"><label>加价率</label><span class="field-value"><span id="vMarkB2">35</span>%</span></div>
+                <input type="range" min="0" max="100" step="1" value="35" id="markB" class="slider">
+                <div class="hint">主流市场 · 中等加价</div>
+              </div>
+            </div>
+            <div class="mix-cell">
+              <div class="mix-cell-h">低端 · nano, Llama</div>
+              <div class="field" style="margin:0">
+                <div class="field-row"><label>占比</label><span class="field-value"><span id="vMixC2">25</span>%</span></div>
+                <input type="range" min="0" max="100" step="5" value="25" id="mixC" class="slider">
+              </div>
+              <div class="field" style="margin:8px 0 0">
+                <div class="field-row"><label>加价率</label><span class="field-value"><span id="vMarkC2">60</span>%</span></div>
+                <input type="range" min="0" max="200" step="1" value="60" id="markC" class="slider">
+                <div class="hint">成本极低 · 可以大幅加价</div>
+              </div>
+            </div>
+          </div>
+          <div class="hint" id="mixSum" style="margin-top:12px">占比合计：100%</div>
+        </div>
+
+        <div class="fblock">
+          <h3><span>C · 客户</span><span class="num">04</span></h3>
+
+          <div class="field">
+            <div class="field-row"><label>起始客户基数 (第 1 月)</label><span class="field-value"><span id="vBase">50</span> 人</span></div>
+            <div class="stepper">
+              <button type="button" data-step="base:-1000">−1k</button>
+              <button type="button" data-step="base:-100">−100</button>
+              <input type="number" id="base" value="50" min="0" step="1">
+              <button type="button" data-step="base:+100">+100</button>
+              <button type="button" data-step="base:+1000">+1k</button>
+            </div>
+            <div class="hint">从 0 到数万 — 输入任意数字</div>
+          </div>
+
+          <div class="field">
+            <div class="field-row"><label>每月新增客户</label><span class="field-value"><span id="vNew">40</span> 人</span></div>
+            <div class="stepper">
+              <button type="button" data-step="newPm:-1000">−1k</button>
+              <button type="button" data-step="newPm:-100">−100</button>
+              <input type="number" id="newPm" value="40" min="0" step="1">
+              <button type="button" data-step="newPm:+100">+100</button>
+              <button type="button" data-step="newPm:+1000">+1k</button>
+            </div>
+            <div class="hint">市场推广每月带来的客户数</div>
+          </div>
+
+          <div class="field">
+            <div class="field-row"><label>月流失率</label><span class="field-value"><span id="vChurn">8</span>%</span></div>
+            <input type="range" min="1" max="30" step="1" value="8" id="churn" class="slider">
+            <div class="ticks"><span>1%</span><span>10%</span><span>20%</span><span>30%</span></div>
+            <div class="hint">B2C 代币商店典型流失率 5–15%</div>
+          </div>
+
+          <div class="field">
+            <div class="field-row"><label>平均充值金额</label><span class="field-value">$<span id="vCheck">8</span></span></div>
+            <input type="range" min="1" max="100" step="1" value="8" id="check" class="slider">
+            <div class="ticks"><span>$1</span><span>$30</span><span>$60</span><span>$100</span></div>
+          </div>
+
+          <div class="field">
+            <div class="field-row"><label>每客户每月充值次数</label><span class="field-value"><span id="vFreq">2.5</span>×</span></div>
+            <input type="range" min="0.5" max="10" step="0.5" value="2.5" id="freq" class="slider">
+            <div class="ticks"><span>0.5</span><span>3</span><span>6</span><span>10</span></div>
+          </div>
+        </div>
+
+        <div class="fblock">
+          <h3><span>D · 市场推广</span><span class="num">05</span></h3>
+
+          <div class="field">
+            <div class="field-row"><label>CAC</label><span class="field-value">$<span id="vCac">6</span></span></div>
+            <input type="range" min="0" max="50" step="1" value="6" id="cac" class="slider">
+            <div class="hint">Yandex Direct · Telegram · VK</div>
+          </div>
+
+          <div class="field">
+            <div class="field-row"><label>付费流量占比</label><span class="field-value"><span id="vPaid">70</span>%</span></div>
+            <input type="range" min="0" max="100" step="5" value="70" id="paid" class="slider">
+          </div>
+        </div>
+
+        <div class="fblock">
+          <h3><span>E · Cloud.ru 基础设施</span><span class="num">06</span></h3>
+
+          <div class="cloud-summary" id="cloudSummary"></div>
+
+          <div class="field">
+            <div class="field-row"><label>每 1000 客户的 vCPU</label><span class="field-value"><span id="vCpuPer">0.5</span></span></div>
+            <input type="range" min="0.1" max="3" step="0.1" value="0.5" id="cpuPer" class="slider">
+            <div class="hint">通常 1 vCPU 可支持约 2000 个代币商店客户</div>
+          </div>
+          <div class="field">
+            <div class="field-row"><label>每 vCPU 的 RAM (GB)</label><span class="field-value"><span id="vRamPer">2</span></span></div>
+            <input type="range" min="1" max="8" step="0.5" value="2" id="ramPer" class="slider">
+          </div>
+          <div class="field">
+            <div class="field-row"><label>每客户 SSD</label><span class="field-value"><span id="vSsdPer">0.5</span> GB</span></div>
+            <input type="range" min="0.1" max="5" step="0.1" value="0.5" id="ssdPer" class="slider">
+            <div class="hint">日志、交易记录、缓存</div>
+          </div>
+          <div class="field">
+            <div class="field-row"><label>每客户每月流量</label><span class="field-value"><span id="vTrafPer">0.5</span> GB</span></div>
+            <input type="range" min="0.1" max="10" step="0.1" value="0.5" id="trafPer" class="slider">
+          </div>
+
+          <details style="margin-top:18px;border:3px solid var(--line);background:var(--paper-2);padding:14px 16px">
+            <summary style="font-size:11px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;cursor:pointer">Cloud.ru 价格 ▾ <span style="color:var(--muted);font-weight:700">基础价格</span></summary>
+            <div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div class="field" style="margin:0">
+                <div class="field-row"><label>vCPU ₽/小时</label><span class="field-value"><span id="vPxCpu">1</span></span></div>
+                <input type="range" min="0.5" max="3" step="0.1" value="1" id="pxCpu" class="slider">
+              </div>
+              <div class="field" style="margin:0">
+                <div class="field-row"><label>RAM 1 GB ₽/小时</label><span class="field-value"><span id="vPxRam">0.40</span></span></div>
+                <input type="range" min="0.1" max="2" step="0.05" value="0.4" id="pxRam" class="slider">
+              </div>
+              <div class="field" style="margin:0">
+                <div class="field-row"><label>SSD 1 GB ₽/月</label><span class="field-value"><span id="vPxSsd">7</span></span></div>
+                <input type="range" min="2" max="20" step="0.5" value="7" id="pxSsd" class="slider">
+              </div>
+              <div class="field" style="margin:0">
+                <div class="field-row"><label>流量 ₽/GB</label><span class="field-value"><span id="vPxTraf">1.5</span></span></div>
+                <input type="range" min="0" max="10" step="0.1" value="1.5" id="pxTraf" class="slider">
+              </div>
+              <div class="field" style="margin:0">
+                <div class="field-row"><label>公网 IP ₽/月</label><span class="field-value"><span id="vPxIp">250</span></span></div>
+                <input type="range" min="0" max="1000" step="50" value="250" id="pxIp" class="slider">
+              </div>
+              <div class="field" style="margin:0">
+                <div class="field-row"><label>数据库加价</label><span class="field-value">×<span id="vDbMult">1.5</span></span></div>
+                <input type="range" min="1" max="3" step="0.1" value="1.5" id="dbMult" class="slider">
+                <div class="hint">托管 PostgreSQL 比 VM 价格高</div>
+              </div>
+            </div>
+          </details>
+        </div>
+
+        <div class="fblock">
+          <h3><span>F · 支持与损失</span><span class="num">07</span></h3>
+
+          <div class="field">
+            <div class="field-row"><label>AI 客服 / 自动化</label><span class="field-value">$<span id="vSupport">0</span></span></div>
+            <input type="range" min="0" max="3000" step="50" value="0" id="support" class="slider">
+            <div class="hint">仅 AI 服务时填 0 · 如需购买 AI 代理请填入此处</div>
+          </div>
+          <div class="field">
+            <div class="field-row"><label>其他 (会计、法人、软件、域名)</label><span class="field-value">$<span id="vOther">50</span></span></div>
+            <input type="range" min="0" max="2000" step="50" value="50" id="other" class="slider">
+            <div class="hint">简易税制会计 + 域名/SSL</div>
+          </div>
+          <div class="field">
+            <div class="field-row"><label>支付通道</label><span class="field-value"><span id="vAcq">4</span>%</span></div>
+            <input type="range" min="0" max="10" step="0.5" value="4" id="acq" class="slider">
+            <div class="hint">ЮKassa / CloudPayments 3–5%</div>
+          </div>
+          <div class="field">
+            <div class="field-row"><label>试用 / 滥用</label><span class="field-value"><span id="vTrial">5</span>%</span></div>
+            <input type="range" min="0" max="20" step="0.5" value="5" id="trial" class="slider">
+          </div>
+          <div class="field">
+            <div class="field-row"><label>拒付</label><span class="field-value"><span id="vCb">2</span>%</span></div>
+            <input type="range" min="0" max="10" step="0.5" value="2" id="cb" class="slider">
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ===== RESULT (right, dark) ===== -->
+      <div class="calc-result">
+        <div>
+          <div class="result-h"><span>第 12 月 · 营收</span><span id="rClients">— 客户</span></div>
+          <div class="result-price"><span id="rRev">—</span><small>₽</small></div>
+          <div class="result-sub">≈ <span id="rRevUsd">—</span> $ · ARPU <span id="rArpu">—</span> $</div>
+        </div>
+
+        <div>
+          <div class="result-h"><span>第 12 月 · EBITDA</span><span id="rMargin">利润率 —</span></div>
+          <div class="result-price" id="rEbBlock"><span id="rEb">—</span><small>₽</small></div>
+          <div class="result-sub">12 个月累计 <b id="rEbY">—</b> ₽</div>
+        </div>
+
+        <table class="result-table">
+          <tr><td>每客户代币成本</td><td id="uTok">—</td></tr>
+          <tr><td>支付通道 + 试用 + 拒付</td><td id="uVar">—</td></tr>
+          <tr><td>每客户每月贡献</td><td id="uContr">—</td></tr>
+          <tr><td>有效 CAC</td><td id="uCAC">—</td></tr>
+          <tr><td>LTV (churn 1/n)</td><td id="uLTV">—</td></tr>
+          <tr class="sep total"><td>LTV / CAC</td><td id="uLtvCac">—</td></tr>
+          <tr class="total"><td>回收期 (月)</td><td id="uPayback">—</td></tr>
+        </table>
+
+        <div class="badges">
+          <span class="badge" id="bMargin">利润率 —</span>
+          <span class="badge" id="bLtvCac">LTV/CAC —</span>
+          <span class="badge" id="bPayback">回收期 —</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI POSTERS -->
+    <div class="kpis">
+      <div class="kpi">
+        <span class="kpi-lab">营收 / 第 12 月</span>
+        <span class="kpi-val"><span id="kRev">—</span><small>₽</small></span>
+        <span class="kpi-sub">≈ <span id="kRevUsd">—</span> $</span>
+      </div>
+      <div class="kpi">
+        <span class="kpi-lab">EBITDA / 第 12 月</span>
+        <span class="kpi-val"><span id="kEb">—</span><small>₽</small></span>
+        <span class="kpi-sub">利润率 <span id="kMargin">—</span></span>
+      </div>
+      <div class="kpi">
+        <span class="kpi-lab">EBITDA / 年</span>
+        <span class="kpi-val"><span id="kYear">—</span><small>₽</small></span>
+        <span class="kpi-sub">12 个月内</span>
+      </div>
+      <div class="kpi">
+        <span class="kpi-lab">客户基数 · 第 12 月</span>
+        <span class="kpi-val"><span id="kCl">—</span></span>
+        <span class="kpi-sub">起始 <span id="kBase">—</span></span>
+      </div>
+    </div>
+
+    <!-- CHART -->
+    <div class="chart-wrap" id="forecast">
+      <div class="chart-head">
+        <h4>12 个月预测</h4>
+        <div class="chart-legend">
+          <span><i style="background:var(--fg)"></i>营收</span>
+          <span><i style="background:var(--red)"></i>EBITDA</span>
+          <span><i style="background:var(--ochre);height:6px;border-radius:50%"></i>客户</span>
+        </div>
+      </div>
+      <svg class="chart" id="chart" viewBox="0 0 720 300" preserveAspectRatio="none"></svg>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============= P&L ============= -->
+<section class="section" id="pnl">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-no">02</div>
+      <h2>月度 <span class="red">P&amp;L</span></h2>
+      <div class="meta">12 个月<br>营收 → EBITDA</div>
+    </div>
+
+    <div class="toolbar">
+      <div class="legend-line">显示币种</div>
+      <div class="toggle">
+        <button id="curRub" class="on" onclick="setCurrency('rub')">₽ 卢布</button>
+        <button id="curUsd" onclick="setCurrency('usd')">$ 美元</button>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table class="pnl">
+        <thead>
+          <tr><th>月份</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th><th>11</th><th>12</th></tr>
+        </thead>
+        <tbody id="pnlBody"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ============= PACKAGES ============= -->
+<section class="section" id="packages">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-no">03</div>
+      <h2>充值<span class="ochre">套餐</span></h2>
+      <div class="meta">利润按当前<br>加价率计算</div>
+    </div>
+    <div class="pkgs" id="pkgs"></div>
+    <p style="margin-top:18px;font-family:var(--font-mono);font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.06em;text-transform:uppercase">
+      代币数量 = 套餐金额 / Claude Sonnet 4.6 采购价 · 输出 $15 / 1M
+    </p>
+  </div>
+</section>
+
+<!-- ============= INVESTMENT ============= -->
+<section class="section" id="invest">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-no">04</div>
+      <h2>众筹<br><span class="red">启动</span></h2>
+      <div class="meta">启动需要多少资金<br>以及每位<br>投资人的份额</div>
+    </div>
+
+    <div class="invest-grid">
+      <!-- Form -->
+      <div class="invest-form">
+        <div class="fblock">
+          <h3><span>启动成本明细</span><span class="num">A</span></h3>
+
+          <div class="closed-row">
+            <span class="closed-tag">已完成</span>
+            <span>开发 · 设计 · 品牌 — <b>通过 Claude 完成</b>，无需现金支出</span>
+          </div>
+
+          <div class="field">
+            <div class="field-row"><label>开发 (如需补充)</label><span class="field-value"><span id="vCapDev">0</span> 千 ₽</span></div>
+            <input type="range" min="0" max="3000" step="50" value="0" id="capDev" class="slider">
+            <div class="hint">基础产品已完成 — 填 0 或为修改预算</div>
+          </div>
+          <div class="field">
+            <div class="field-row"><label>设计与品牌</label><span class="field-value"><span id="vCapDes">0</span> 千 ₽</span></div>
+            <input type="range" min="0" max="1000" step="10" value="0" id="capDes" class="slider">
+            <div class="hint">VI / 标志 / 插画 (基础之外)</div>
+          </div>
+          <div class="field">
+            <div class="field-row"><label>法律注册</label><span class="field-value"><span id="vCapLegal">50</span> 千 ₽</span></div>
+            <input type="range" min="0" max="500" step="10" value="50" id="capLegal" class="slider">
+            <div class="hint">个体工商户注册 · 公开要约 · 隐私政策 · 支付通道合同</div>
+          </div>
+          <div class="field">
+            <div class="field-row"><label>支付通道接入和 KYC</label><span class="field-value"><span id="vCapInt">30</span> 千 ₽</span></div>
+            <input type="range" min="0" max="300" step="10" value="30" id="capInt" class="slider">
+            <div class="hint">ЮKassa / CloudPayments — 押金和审核</div>
+          </div>
+        </div>
+
+        <div class="fblock">
+          <h3><span>盈利前的运营储备</span><span class="num">B</span></h3>
+
+          <div class="field">
+            <div class="field-row"><label>OPEX 储备 (月)</label><span class="field-value"><span id="vRunway">6</span></span></div>
+            <input type="range" min="1" max="18" step="1" value="6" id="runway" class="slider">
+            <div class="hint">Cloud.ru + 支持 + 其他 × N 个月</div>
+          </div>
+          <div class="field">
+            <div class="field-row"><label>代币押金 (运营月数)</label><span class="field-value"><span id="vTokFloat">6</span></span></div>
+            <input type="range" min="1" max="18" step="1" value="6" id="tokFloat" class="slider">
+            <div class="hint">提前向供应商批发采购可覆盖多少月运营</div>
+          </div>
+          <div class="field">
+            <div class="field-row"><label>安全缓冲</label><span class="field-value"><span id="vBuffer">15</span>%</span></div>
+            <input type="range" min="0" max="50" step="5" value="15" id="buffer" class="slider">
+          </div>
+          <div class="field">
+            <div class="field-row"><label>投资人数量</label><span class="field-value"><span id="vInv">20</span> 人</span></div>
+            <input type="range" min="1" max="100" step="1" value="20" id="invCount" class="slider">
+          </div>
+        </div>
+      </div>
+
+      <!-- Result -->
+      <div class="invest-result">
+        <div>
+          <div class="result-h"><span>每位投资人</span><span id="iCount">× 20 人</span></div>
+          <div class="result-price"><span id="iPer">—</span><small>₽</small></div>
+          <div class="result-sub">总额 <b id="iTotal">—</b> ₽</div>
+        </div>
+
+        <div>
+          <div class="result-h"><span>代币采购押金</span><span id="iTokMonths">— 个月运营</span></div>
+          <div class="result-price"><span id="iWcBig">—</span><small>₽</small></div>
+          <div class="result-sub">平均 <b id="iWcAvg">—</b> ₽ / 月 · 随基数增长</div>
+        </div>
+
+        <table class="result-table">
+          <tr><td>法律注册 + 支付通道 (如有补购)</td><td id="iCapex">—</td></tr>
+          <tr><td>OPEX Cloud.ru × N 月 (随基数增长)</td><td id="iOpex">—</td></tr>
+          <tr><td>代币供应商押金 (主要支出)</td><td id="iWc">—</td></tr>
+          <tr><td>安全缓冲</td><td id="iBuf">—</td></tr>
+          <tr class="sep total"><td>启动合计</td><td id="iTotal2">—</td></tr>
+        </table>
+
+        <div>
+          <div class="result-h"><span>盈利时间</span><span id="iBeMonth">— 月</span></div>
+          <div class="result-price" id="iBackBlock"><span id="iBack">—</span><small>月</small></div>
+          <div class="result-sub">按当前 EBITDA 投资回收期</div>
+        </div>
+
+        <div class="badges">
+          <span class="badge" id="iVerdict">—</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============= ABOUT ============= -->
+<section class="section" id="about">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-no">05</div>
+      <h2>计算 <span class="red">模型</span> 说明</h2>
+      <div class="meta">公式<br>数据来源<br>注意事项</div>
+    </div>
+    <div class="about">
+      <div class="about-cell">
+        <div class="about-no">A</div>
+        <div class="about-h">营收</div>
+        <div class="about-txt">
+          客户数 × ARPU。ARPU = 平均充值 × 充值频率。客户基数按公式 <code>next = prev × (1 − churn) + new</code> 增长。
+        </div>
+      </div>
+      <div class="about-cell">
+        <div class="about-no">B</div>
+        <div class="about-h">成本</div>
+        <div class="about-txt">
+          COGS = 代币 (营收的 <code>1/(1+加价率)</code>) + 支付通道 + 试用 + 拒付。EBITDA = 营收 − COGS − OPEX − 新客户 CAC。
+        </div>
+      </div>
+      <div class="about-cell">
+        <div class="about-no">C</div>
+        <div class="about-h">价格来源</div>
+        <div class="about-txt">
+          直接从全球 AI 供应商按批发价采购代币。目录中包含 181 个模型，数据更新于 2026-05-14。无中间商 — 仅支付支付通道手续费。
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============= FOOTER ============= -->
+<footer>
+  <div class="wrap footer-row">
+    <div class="left">TOKENS<b>TOK</b><br>2026</div>
+    <div class="right">
+      供应商价格每 <b>6 个月</b> 下调一次<br>
+      请重新检查参数 · USD → RUB 汇率风险<br>
+      设计：<b>sansaran.pro</b> v10
+    </div>
+  </div>
+</footer>
+
+<script>
+const FIELDS = ['usd','mixA','mixB','mixC','markA','markB','markC','base','newPm','churn','check','freq','cac','paid',
+  'cpuPer','ramPer','ssdPer','trafPer','pxCpu','pxRam','pxSsd','pxTraf','pxIp','dbMult',
+  'support','other','acq','trial','cb',
+  'capDev','capDes','capLegal','capInt','runway','tokFloat','buffer','invCount'];
+const DEFAULTS = {usd:90,mixA:25,mixB:50,mixC:25,markA:20,markB:35,markC:60,
+  base:50,newPm:40,churn:8,check:8,freq:2.5,cac:6,paid:70,
+  cpuPer:0.5,ramPer:2,ssdPer:0.5,trafPer:0.5,pxCpu:1,pxRam:0.4,pxSsd:7,pxTraf:1.5,pxIp:250,dbMult:1.5,
+  support:0,other:50,acq:4,trial:5,cb:2,
+  capDev:0,capDes:0,capLegal:50,capInt:30,runway:6,tokFloat:6,buffer:15,invCount:20};
+
+function effectiveMarkup(){
+  const a=val('mixA'),b=val('mixB'),c=val('mixC');
+  const ma=val('markA'),mb=val('markB'),mc=val('markC');
+  const sum = a+b+c || 1;
+  return (a*ma + b*mb + c*mc) / sum / 100;
+}
+
+let currency = 'rub';
+const $ = id => document.getElementById(id);
+const val = id => parseFloat($(id).value)||0;
+const clamp = (n,lo,hi)=>Math.max(lo,Math.min(hi,n));
+
+function fmt(n,opts={}){
+  const {sign=false}=opts;
+  if(!isFinite(n)) return '—';
+  const a = Math.abs(n);
+  let s;
+  if(a>=1e8) s = (n/1e8).toFixed(2)+' 亿';
+  else if(a>=1e4) s = (n/1e4).toFixed(2)+' 万';
+  else s = Math.round(n).toLocaleString('zh-CN');
+  if(sign && n>0) s='+'+s;
+  return s;
+}
+function fmtClients(n){
+  if(!isFinite(n)) return '—';
+  if(Math.abs(n)>=1e8) return (n/1e8).toFixed(2)+' 亿';
+  if(Math.abs(n)>=1e4) return (n/1e4).toFixed(2)+' 万';
+  return Math.round(n).toLocaleString('zh-CN');
+}
+function fmtRaw(n,dec=0){if(!isFinite(n))return '—';return n.toLocaleString('zh-CN',{maximumFractionDigits:dec,minimumFractionDigits:dec})}
+function fmtPct(n,dec=1){if(!isFinite(n))return '—';return (n*100).toFixed(dec)+'%'}
+
+// Cloud.ru sizing: вернуть рублёвую стоимость инфраструктуры на N клиентов в мес
+// Плюс детализацию по компонентам (для отображения)
+function cloudSizing(clients){
+  const cpuPer1k = val('cpuPer');     // vCPU на 1000 клиентов (app)
+  const ramPerCpu = val('ramPer');    // GB RAM на 1 vCPU
+  const ssdPerClient = val('ssdPer'); // GB SSD на клиента
+  const trafPerClient = val('trafPer'); // GB трафика на клиента в мес
+  const pxCpu = val('pxCpu'), pxRam = val('pxRam'), pxSsd = val('pxSsd');
+  const pxTraf = val('pxTraf'), pxIp = val('pxIp'), dbMult = val('dbMult');
+
+  // App layer
+  const appCpu = Math.max(2, Math.ceil((clients/1000)*cpuPer1k));
+  const appRam = Math.max(4, Math.ceil(appCpu*ramPerCpu));
+  // DB layer (примерно в 2.5 раза меньше vCPU чем app)
+  const dbCpu = Math.max(2, Math.ceil(appCpu/2.5));
+  const dbRam = Math.max(4, Math.ceil(dbCpu*ramPerCpu*2)); // у БД больше памяти
+  // Storage
+  const ssdGb = Math.max(50, Math.ceil(clients*ssdPerClient + dbRam*5));
+  // Traffic
+  const trafGb = Math.max(10, Math.ceil(clients*trafPerClient));
+  // IP
+  const ipCount = 1;
+
+  const HOURS = 720;
+  const appCost = (appCpu*pxCpu + appRam*pxRam) * HOURS;
+  const dbCost  = (dbCpu*pxCpu + dbRam*pxRam) * HOURS * dbMult;
+  const ssdCost = ssdGb * pxSsd;
+  const trafCost = trafGb * pxTraf;
+  const ipCost = ipCount * pxIp;
+  const total = appCost + dbCost + ssdCost + trafCost + ipCost;
+
+  return {appCpu, appRam, dbCpu, dbRam, ssdGb, trafGb, ipCount,
+          appCost, dbCost, ssdCost, trafCost, ipCost, total};
+}
+
+function compute(){
+  const usd = val('usd');
+  const markup = effectiveMarkup();
+  const base = val('base'), newPm = val('newPm');
+  const churn = clamp(val('churn')/100, 0.001, 0.99);
+  const check = val('check'), freq = val('freq');
+  const cac = val('cac'), paid = val('paid')/100;
+  const support = val('support'), other = val('other');
+  const acq = val('acq')/100, trial = val('trial')/100, cb = val('cb')/100;
+
+  const arpu = check * freq;
+  const cogsShare = 1/(1+markup);
+  const tokenCostPerClient = arpu * cogsShare;
+  const varPerClient = arpu * (acq + trial + cb);
+  const contribPerClient = arpu - tokenCostPerClient - varPerClient;
+  const contribMargin = arpu>0 ? contribPerClient/arpu : 0;
+  const effCAC = cac * paid;
+  const lifeMonths = 1/churn;
+  const ltv = contribPerClient * lifeMonths;
+  const ltvCac = effCAC>0 ? ltv/effCAC : Infinity;
+  const payback = contribPerClient>0 ? effCAC/contribPerClient : Infinity;
+
+  const months = [];
+  let clients = base;
+  let cumEbitda = 0;
+  let lastSizing = null;
+  for(let m=1;m<=12;m++){
+    const revenueUsd = clients * arpu;
+    const tokenCost = revenueUsd * cogsShare;
+    const acqCost = revenueUsd * acq;
+    const trialCost = revenueUsd * (trial+cb);
+    const cacSpend = newPm * effCAC;
+    const sizing = cloudSizing(clients);
+    lastSizing = sizing;
+    const cloudUsd = sizing.total / usd;          // переводим ₽ → $ для единой математики
+    const opexUsd = cloudUsd + support + other;
+    const ebitda = revenueUsd - tokenCost - acqCost - trialCost - opexUsd - cacSpend;
+    cumEbitda += ebitda;
+    months.push({m, clients:Math.round(clients), revenueUsd, tokenCost, acqCost, trialCost,
+                 cacSpend, cloudUsd, opexUsd, ebitda, cloudRub:sizing.total, sizing});
+    clients = clients * (1-churn) + newPm;
+  }
+
+  return {
+    inputs:{usd,markup,arpu},
+    unit:{arpu,tokenCostPerClient,varPerClient,contribPerClient,contribMargin,effCAC,ltv,ltvCac,payback,lifeMonths},
+    months, cumEbitda, lastSizing,
+  };
+}
+
+function statusFor(metric, value){
+  if(metric==='margin') return value>=0.3 ? 'good' : value>=0.2 ? 'mid' : 'bad';
+  if(metric==='ltvcac') return value>=3 ? 'good' : value>=1.5 ? 'mid' : 'bad';
+  if(metric==='payback') return value<=6 ? 'good' : value<=12 ? 'mid' : 'bad';
+  return 'mid';
+}
+function setBadge(el, label, status){
+  el.classList.remove('good','mid','bad');
+  el.classList.add(status);
+  el.textContent = label;
+}
+
+function updateSlidersBg(){
+  document.querySelectorAll('.slider').forEach(s=>{
+    const min = parseFloat(s.min)||0, max = parseFloat(s.max)||100, v = parseFloat(s.value)||0;
+    const p = ((v-min)/(max-min))*100;
+    s.style.setProperty('--p', p+'%');
+  });
+}
+
+function syncDisplays(){
+  $('vUsd').textContent = val('usd');
+  const eff = effectiveMarkup()*100;
+  $('vMarkup').textContent = eff.toFixed(1).replace('.',',');
+  $('vMixA').textContent = val('mixA'); $('vMixA2').textContent = val('mixA');
+  $('vMixB').textContent = val('mixB'); $('vMixB2').textContent = val('mixB');
+  $('vMixC').textContent = val('mixC'); $('vMixC2').textContent = val('mixC');
+  $('vMarkA').textContent = val('markA'); $('vMarkA2').textContent = val('markA');
+  $('vMarkB').textContent = val('markB'); $('vMarkB2').textContent = val('markB');
+  $('vMarkC').textContent = val('markC'); $('vMarkC2').textContent = val('markC');
+  $('vBase').textContent = val('base').toLocaleString('zh-CN');
+  $('vNew').textContent = val('newPm').toLocaleString('zh-CN');
+  $('vChurn').textContent = val('churn');
+  $('vCheck').textContent = val('check');
+  $('vFreq').textContent = val('freq').toString().replace('.',',');
+  $('vCac').textContent = val('cac');
+  $('vPaid').textContent = val('paid');
+  $('vSupport').textContent = val('support');
+  $('vOther').textContent = val('other');
+  $('vAcq').textContent = val('acq').toString().replace('.',',');
+  $('vTrial').textContent = val('trial').toString().replace('.',',');
+  $('vCb').textContent = val('cb').toString().replace('.',',');
+  $('vCpuPer').textContent = val('cpuPer').toString().replace('.',',');
+  $('vRamPer').textContent = val('ramPer').toString().replace('.',',');
+  $('vSsdPer').textContent = val('ssdPer').toString().replace('.',',');
+  $('vTrafPer').textContent = val('trafPer').toString().replace('.',',');
+  $('vPxCpu').textContent = val('pxCpu').toFixed(1).replace('.',',');
+  $('vPxRam').textContent = val('pxRam').toFixed(2).replace('.',',');
+  $('vPxSsd').textContent = val('pxSsd').toFixed(1).replace('.',',');
+  $('vPxTraf').textContent = val('pxTraf').toFixed(1).replace('.',',');
+  $('vPxIp').textContent = val('pxIp');
+  $('vDbMult').textContent = val('dbMult').toFixed(1).replace('.',',');
+  $('vCapDev').textContent = val('capDev');
+  $('vCapDes').textContent = val('capDes');
+  $('vCapLegal').textContent = val('capLegal');
+  $('vCapInt').textContent = val('capInt');
+  $('vRunway').textContent = val('runway');
+  $('vTokFloat').textContent = val('tokFloat').toString().replace('.',',');
+  $('vBuffer').textContent = val('buffer');
+  $('vInv').textContent = val('invCount');
+
+  const a=val('mixA'),b=val('mixB'),c=val('mixC');
+  const sum = a+b+c;
+  const t = Math.max(sum,1);
+  $('mixBarA').style.width = (a/t*100)+'%';
+  $('mixBarB').style.width = (b/t*100)+'%';
+  $('mixBarC').style.width = (c/t*100)+'%';
+  $('mixSum').textContent = sum===100 ? `合计：${sum}% · ✓` : `合计：${sum}% · 需要 100%`;
+  $('mixSum').style.color = sum===100 ? 'var(--muted)' : 'var(--red)';
+}
+
+function render(){
+  syncDisplays();
+  updateSlidersBg();
+  const r = compute();
+  const usd = r.inputs.usd;
+  const m12 = r.months[11];
+  const u = r.unit;
+
+  // Right panel — main numbers
+  $('rRev').textContent = fmt(m12.revenueUsd*usd);
+  $('rRevUsd').textContent = fmtRaw(Math.round(m12.revenueUsd));
+  $('rArpu').textContent = u.arpu.toFixed(1);
+  $('rClients').textContent = fmtClients(m12.clients) + ' 个客户';
+
+  $('rEb').textContent = fmt(m12.ebitda*usd, {sign:true});
+  $('rMargin').textContent = '利润率 ' + fmtPct(m12.ebitda/(m12.revenueUsd||1));
+  $('rEbY').textContent = fmt(r.cumEbitda*usd, {sign:true});
+  $('rEbBlock').classList.toggle('neg', m12.ebitda<0);
+
+  // Unit table
+  $('uTok').textContent = '$ '+u.tokenCostPerClient.toFixed(2);
+  $('uVar').textContent = '$ '+u.varPerClient.toFixed(2);
+  $('uContr').textContent = '$ '+u.contribPerClient.toFixed(2);
+  $('uCAC').textContent = '$ '+u.effCAC.toFixed(2);
+  $('uLTV').textContent = '$ '+u.ltv.toFixed(1);
+  $('uLtvCac').textContent = isFinite(u.ltvCac) ? u.ltvCac.toFixed(1) + ' ×' : '∞';
+  $('uPayback').textContent = isFinite(u.payback) ? u.payback.toFixed(1) : '∞';
+
+  setBadge($('bMargin'), '利润率 · '+fmtPct(u.contribMargin,0), statusFor('margin',u.contribMargin));
+  setBadge($('bLtvCac'), 'LTV/CAC · '+(isFinite(u.ltvCac)?u.ltvCac.toFixed(1):'∞')+'×', statusFor('ltvcac',u.ltvCac));
+  setBadge($('bPayback'), '回收期 · '+(isFinite(u.payback)?u.payback.toFixed(1):'∞')+' 月', statusFor('payback',u.payback));
+
+  // KPIs
+  $('kRev').textContent = fmt(m12.revenueUsd*usd);
+  $('kRevUsd').textContent = fmtRaw(Math.round(m12.revenueUsd));
+  $('kEb').textContent = fmt(m12.ebitda*usd, {sign:true});
+  $('kMargin').textContent = fmtPct(m12.ebitda/(m12.revenueUsd||1));
+  $('kYear').textContent = fmt(r.cumEbitda*usd, {sign:true});
+  $('kCl').textContent = fmtClients(m12.clients);
+  $('kBase').textContent = fmtClients(val('base'));
+
+  drawChart(r.months);
+  renderPnl(r.months, usd);
+  renderPkgs(r.inputs);
+  renderCloudSummary(r.lastSizing, m12.clients);
+  renderInvest(r);
+}
+
+function renderInvest(r){
+  const usd = r.inputs.usd;
+  const fr = n => Math.round(n).toLocaleString('zh-CN');
+
+  // CAPEX in ₽ (inputs are in тыс ₽)
+  const capex = (val('capDev') + val('capDes') + val('capLegal') + val('capInt')) * 1000;
+
+  // OPEX в месяц, среднее по первым N месяцам — берём по runway
+  const runway = val('runway');
+  const supp = val('support'), oth = val('other');
+  const monthsForRunway = r.months.slice(0, runway);
+  let opexSumRub = 0;
+  for(const m of monthsForRunway){
+    opexSumRub += m.cloudRub + (supp + oth) * usd;
+  }
+  // если runway > 12 — экстраполируем по месяцу 12
+  if(runway > 12){
+    const m12 = r.months[11];
+    const monthlyRub = m12.cloudRub + (supp + oth) * usd;
+    opexSumRub += monthlyRub * (runway - 12);
+  }
+
+  // Депозит на токены: реальная сумма закупки за первые N мес из P&L (с учётом роста базы)
+  // — модель «всё с продаж сразу уходит в новую закупку»: депозит покрывает закупку до того,
+  // как выручка успеет конвертироваться в следующую партию токенов.
+  const tokFloat = val('tokFloat');
+  let workingCapital = 0;
+  let avgMonthRub = 0;
+  let totalTokensRub = 0;
+  const tokMonths = r.months.slice(0, Math.min(tokFloat, 12));
+  for(const mo of tokMonths){ workingCapital += mo.tokenCost * usd; }
+  // если N>12 — экстраполяция по месяцу 12
+  if(tokFloat > 12){
+    const m12 = r.months[11];
+    workingCapital += m12.tokenCost * usd * (tokFloat - 12);
+  }
+  totalTokensRub = workingCapital;
+  avgMonthRub = workingCapital / Math.max(tokFloat, 1);
+  const m12 = r.months[11];
+
+  // Buffer
+  const subtotal = capex + opexSumRub + workingCapital;
+  const buffer = subtotal * (val('buffer')/100);
+  const total = subtotal + buffer;
+
+  const investors = Math.max(1, val('invCount'));
+  const perInvestor = total / investors;
+
+  // Когда выходим в плюс по месяцам (первый месяц с положительной EBITDA)
+  let beMonth = null;
+  for(let i=0;i<r.months.length;i++){
+    if(r.months[i].ebitda > 0){ beMonth = r.months[i].m; break; }
+  }
+  // Когда инвестор отбивает свою долю — кумулятивная EBITDA / investors >= perInvestor
+  let payback = null;
+  let cum = 0;
+  for(let i=0;i<r.months.length;i++){
+    cum += r.months[i].ebitda * usd;
+    if(cum/investors >= perInvestor){ payback = i+1; break; }
+  }
+  // если за 12 мес не отбили — экстраполяция по месяцу 12
+  if(payback === null && m12.ebitda > 0){
+    const monthlyPerInvestor = (m12.ebitda * usd) / investors;
+    if(monthlyPerInvestor > 0){
+      const remaining = perInvestor - (cum/investors);
+      payback = 12 + Math.ceil(remaining / monthlyPerInvestor);
+    }
+  }
+
+  $('iCount').textContent = '× ' + investors + ' 人';
+  $('iPer').textContent = fmt(perInvestor);
+  $('iTotal').textContent = fr(total);
+  $('iWcBig').textContent = fmt(totalTokensRub);
+  $('iWcAvg').textContent = fr(avgMonthRub);
+  $('iTokMonths').textContent = tokFloat + ' 个月运营';
+  $('iCapex').textContent = fr(capex) + ' ₽';
+  $('iOpex').textContent = fr(opexSumRub) + ' ₽';
+  $('iWc').textContent = fr(workingCapital) + ' ₽';
+  $('iBuf').textContent = fr(buffer) + ' ₽';
+  $('iTotal2').textContent = fr(total) + ' ₽';
+
+  $('iBeMonth').textContent = beMonth ? ('第 ' + beMonth + ' 月') : '今年内无法盈利';
+  $('iBack').textContent = payback ? payback : '> 24';
+  $('iBackBlock').classList.toggle('neg', !payback || payback > 24);
+
+  const bd = $('iVerdict');
+  bd.classList.remove('good','mid','bad');
+  if(payback && payback <= 12){ bd.classList.add('good'); bd.textContent = '回收期 ' + payback + ' 月 · 优秀'; }
+  else if(payback && payback <= 24){ bd.classList.add('mid'); bd.textContent = '回收期 ' + payback + ' 月 · 可接受'; }
+  else { bd.classList.add('bad'); bd.textContent = '回收期过长 · 提高加价率或增加客户流入'; }
+}
+
+function renderCloudSummary(s, clients){
+  const fr = n => Math.round(n).toLocaleString('ru-RU');
+  $('cloudSummary').innerHTML = `
+    <div class="total">${fmt(s.total)}<small>₽ / 月</small></div>
+    <div class="breakdown">
+      <div><span>应用 ${s.appCpu}vCPU + ${s.appRam}GB</span><b>${fr(s.appCost)} ₽</b></div>
+      <div><span>数据库 ${s.dbCpu}vCPU + ${s.dbRam}GB</span><b>${fr(s.dbCost)} ₽</b></div>
+      <div><span>SSD ${s.ssdGb} GB</span><b>${fr(s.ssdCost)} ₽</b></div>
+      <div><span>流量 ${s.trafGb} GB</span><b>${fr(s.trafCost)} ₽</b></div>
+      <div><span>Public IP × ${s.ipCount}</span><b>${fr(s.ipCost)} ₽</b></div>
+      <div><span>每个客户</span><b>${(s.total/Math.max(clients,1)).toFixed(1)} ₽</b></div>
+    </div>
+    <div class="specs">≈ ${fmtClients(clients)} 个客户 · cloud.ru evolution compute</div>
+  `;
+}
+
+function drawChart(months){
+  const svg = $('chart');
+  const W=720, H=300, pad={l:50,r:50,t:18,b:30};
+  const x = i => pad.l + (i/(months.length-1))*(W-pad.l-pad.r);
+  const revs = months.map(m=>m.revenueUsd);
+  const ebs  = months.map(m=>m.ebitda);
+  const cls  = months.map(m=>m.clients);
+  const allY = [...revs,...ebs,0];
+  const ymax = Math.max(...allY)*1.1 || 1;
+  const ymin = Math.min(...allY,0);
+  const yR = ymax-ymin || 1;
+  const y = v => pad.t + (1 - (v-ymin)/yR)*(H-pad.t-pad.b);
+  const cmax = Math.max(...cls)*1.15 || 1;
+  const yc = v => pad.t + (1 - v/cmax)*(H-pad.t-pad.b);
+
+  let html = '';
+  // grid
+  html += '<g class="chart-grid">';
+  for(let i=0;i<=4;i++){
+    const yy = pad.t + i*((H-pad.t-pad.b)/4);
+    html += `<line x1="${pad.l}" x2="${W-pad.r}" y1="${yy}" y2="${yy}"/>`;
+  }
+  html += '</g>';
+
+  if(ymin<0){
+    const y0 = y(0);
+    html += `<line x1="${pad.l}" x2="${W-pad.r}" y1="${y0}" y2="${y0}" stroke="#0D0D0D" stroke-width="1.5"/>`;
+  }
+
+  html += '<g class="chart-axis">';
+  for(let i=0;i<=4;i++){
+    const v = ymax - i*(yR/4);
+    const yy = pad.t + i*((H-pad.t-pad.b)/4);
+    html += `<text x="${pad.l-8}" y="${yy+3}" text-anchor="end">${fmtRaw(Math.round(v))}</text>`;
+  }
+  for(let i=0;i<months.length;i++){
+    html += `<text x="${x(i)}" y="${H-8}" text-anchor="middle">M${months[i].m}</text>`;
+  }
+  for(let i=0;i<=4;i++){
+    const v = cmax - i*(cmax/4);
+    const yy = pad.t + i*((H-pad.t-pad.b)/4);
+    html += `<text x="${W-pad.r+8}" y="${yy+3}" fill="#C49A20">${Math.round(v)}</text>`;
+  }
+  html += '</g>';
+
+  // revenue bars (black)
+  const bw = (W-pad.l-pad.r)/months.length * 0.55;
+  months.forEach((m,i)=>{
+    const yy = y(m.revenueUsd);
+    const yz = y(0);
+    const h = Math.abs(yz-yy);
+    html += `<rect x="${x(i)-bw/2}" y="${Math.min(yy,yz)}" width="${bw}" height="${h}" fill="#0D0D0D"/>`;
+  });
+
+  // EBITDA red line
+  const ebPath = months.map((m,i)=>`${i===0?'M':'L'}${x(i)},${y(m.ebitda)}`).join(' ');
+  html += `<path d="${ebPath}" fill="none" stroke="#C8302A" stroke-width="3"/>`;
+  months.forEach((m,i)=>{
+    html += `<rect x="${x(i)-3}" y="${y(m.ebitda)-3}" width="6" height="6" fill="#C8302A"/>`;
+  });
+
+  // Clients ochre dots
+  months.forEach((m,i)=>{
+    html += `<circle cx="${x(i)}" cy="${yc(m.clients)}" r="4" fill="#E8B82E" stroke="#0D0D0D" stroke-width="1.5"/>`;
+  });
+
+  svg.innerHTML = html;
+}
+
+const PNL_ROWS = [
+  {kind:'sec',label:'营收'},
+  {key:'clients',label:'客户数',fmt:'int'},
+  {key:'revenueUsd',label:'营收'},
+  {kind:'sec',label:'COGS'},
+  {key:'tokenCost',label:'代币 (采购)'},
+  {key:'acqCost',label:'支付通道'},
+  {key:'trialCost',label:'试用 + 拒付'},
+  {kind:'sec',label:'OPEX'},
+  {key:'cloudUsd',label:'Cloud.ru (自动规模)'},
+  {key:'supportOther',label:'支持 + 其他',computed:(_,supp,oth)=>supp+oth},
+  {key:'cacSpend',label:'新客户 CAC'},
+  {key:'ebitda',label:'EBITDA',total:true},
+];
+
+function renderPnl(months, usd){
+  const tbody = $('pnlBody');
+  const supp = val('support'), oth = val('other');
+  let html = '';
+  for(const row of PNL_ROWS){
+    if(row.kind==='sec'){
+      html += `<tr class="sec"><td colspan="13">▸ ${row.label}</td></tr>`;
+      continue;
+    }
+    html += `<tr${row.total?' class="total"':''}><td>${row.label}</td>`;
+    for(const m of months){
+      let v;
+      if(row.computed) v = row.computed(m, supp, oth);
+      else v = m[row.key];
+      let cls='';
+      let display;
+      if(row.fmt==='int'){
+        display = v.toLocaleString('ru-RU');
+      } else {
+        const num = currency==='rub' ? v*usd : v;
+        display = fmtRaw(Math.round(num));
+        if(row.total){
+          cls = num>=0?'pos':'neg';
+          if(num>0) display='+'+display;
+        }
+      }
+      html += `<td class="${cls}">${display}</td>`;
+    }
+    html += '</tr>';
+  }
+  tbody.innerHTML = html;
+}
+
+const PKGS = [
+  {name:'Starter',rub:290},
+  {name:'Basic',rub:790},
+  {name:'Pro',rub:1990},
+  {name:'Business',rub:4990},
+  {name:'Enterprise',rub:14990},
+];
+function renderPkgs(inp){
+  const html = PKGS.map(p=>{
+    const usdAmt = p.rub/inp.usd;
+    const marginUsd = usdAmt * inp.markup/(1+inp.markup);
+    const marginRub = marginUsd * inp.usd;
+    const sonnetTokens = usdAmt/(15*(1+inp.markup))*1e6;
+    const tokK = sonnetTokens>=1e6 ? (sonnetTokens/1e6).toFixed(2)+' 百万' : Math.round(sonnetTokens/1e3).toLocaleString('zh-CN')+' 千';
+    return `<div class="pkg">
+      <div class="pkg-name">${p.name}</div>
+      <div class="pkg-price">${p.rub.toLocaleString('zh-CN')}<small>₽</small></div>
+      <div class="pkg-tokens">≈ ${tokK} Sonnet 代币</div>
+      <div class="pkg-row"><span>${usdAmt.toFixed(2)} $</span><span>利润 <b>+${Math.round(marginRub).toLocaleString('zh-CN')} ₽</b></span></div>
+    </div>`;
+  }).join('');
+  $('pkgs').innerHTML = html;
+}
+
+function setCurrency(c){
+  currency = c;
+  $('curRub').classList.toggle('on', c==='rub');
+  $('curUsd').classList.toggle('on', c==='usd');
+  render();
+}
+
+function resetDefaults(){
+  for(const f of FIELDS) $(f).value = DEFAULTS[f];
+  render();
+}
+
+for(const f of FIELDS){
+  $(f).addEventListener('input', render);
+}
+document.querySelectorAll('button[data-step]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const [id, delta] = btn.dataset.step.split(':');
+    const el = $(id);
+    el.value = Math.max(0, (parseFloat(el.value)||0) + parseFloat(delta));
+    render();
+  });
+});
+render();
+</script>
+
+<!-- ===== ЧАТ-ВИДЖЕТ (bridge → оператор) ===== -->
+<style>
+  #ttChatBtn{position:fixed;right:20px;bottom:20px;width:56px;height:56px;border-radius:50%;background:#111;color:#fff;border:none;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.28);font-size:24px;z-index:9998;display:flex;align-items:center;justify-content:center;transition:transform .15s}
+  #ttChatBtn:hover{transform:scale(1.06)}
+  #ttChatBtn .dot{position:absolute;top:8px;right:8px;width:10px;height:10px;border-radius:50%;background:#ff4d4d;display:none}
+  #ttChatBtn.has-new .dot{display:block}
+  #ttChat{position:fixed;right:20px;bottom:88px;width:380px;max-width:calc(100vw - 40px);height:540px;max-height:calc(100vh - 120px);background:#fff;border:1px solid #e5e7eb;border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.18);display:none;flex-direction:column;z-index:9999;overflow:hidden;font-family:inherit}
+  #ttChat.open{display:flex}
+  #ttChat header{padding:14px 16px;background:#111;color:#fff;display:flex;align-items:center;justify-content:space-between}
+  #ttChat header .ttTitle{font-weight:600;font-size:14px}
+  #ttChat header .ttSub{font-size:11px;opacity:.65;margin-top:2px}
+  #ttChat header button{background:transparent;border:none;color:#fff;cursor:pointer;font-size:20px;padding:0 4px;line-height:1}
+  #ttLog{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;background:#fafafa}
+  #ttLog .m{max-width:85%;padding:9px 12px;border-radius:14px;font-size:13px;line-height:1.45;white-space:pre-wrap;word-wrap:break-word}
+  #ttLog .m.user{align-self:flex-end;background:#111;color:#fff;border-bottom-right-radius:4px}
+  #ttLog .m.assistant{align-self:flex-start;background:#fff;border:1px solid #e5e7eb;color:#111;border-bottom-left-radius:4px}
+  #ttLog .m.pending{align-self:flex-start;background:#fff;border:1px dashed #d1d5db;color:#666;font-style:italic}
+  #ttLog .empty{margin:auto;color:#9ca3af;font-size:13px;text-align:center;padding:0 20px}
+  #ttForm{display:flex;border-top:1px solid #e5e7eb;background:#fff}
+  #ttInput{flex:1;border:none;padding:12px 14px;font-size:13px;outline:none;font-family:inherit;resize:none;max-height:120px;min-height:44px}
+  #ttSend{border:none;background:#111;color:#fff;padding:0 18px;cursor:pointer;font-size:13px;font-weight:600}
+  #ttSend:disabled{opacity:.4;cursor:not-allowed}
+  #ttHint{padding:6px 14px;font-size:11px;color:#9ca3af;border-top:1px solid #f3f4f6;background:#fff}
+</style>
+
+<button id="ttChatBtn" title="向客服提问"><span>💬</span><span class="dot"></span></button>
+
+<div id="ttChat">
+  <header>
+    <div>
+      <div class="ttTitle">关于 TokensTok 提问</div>
+      <div class="ttSub">问题将发送给客服</div>
+    </div>
+    <button id="ttClose" title="关闭">×</button>
+  </header>
+  <div id="ttLog"><div class="empty">提出关于商业模式、单位经济、风险的问题 — 客服将在终端中看到并回答。</div></div>
+  <form id="ttForm" autocomplete="off">
+    <textarea id="ttInput" rows="1" placeholder="例如：如果每月新增 200 个客户会怎样？"></textarea>
+    <button id="ttSend" type="submit">↑</button>
+  </form>
+  <div id="ttHint">Enter — 发送 · Shift+Enter — 换行</div>
+</div>
+
+<script>
+(function(){
+  const API = location.origin.startsWith('http') && location.port === '4174' ? '' : 'http://localhost:4174';
+  const btn = document.getElementById('ttChatBtn');
+  const panel = document.getElementById('ttChat');
+  const closeBtn = document.getElementById('ttClose');
+  const form = document.getElementById('ttForm');
+  const input = document.getElementById('ttInput');
+  const send = document.getElementById('ttSend');
+  const log = document.getElementById('ttLog');
+
+  let lastSeenCount = 0;
+  const isOpen = () => panel.classList.contains('open');
+
+  btn.addEventListener('click', () => {
+    panel.classList.add('open');
+    btn.classList.remove('has-new');
+    input.focus();
+  });
+  closeBtn.addEventListener('click', () => panel.classList.remove('open'));
+
+  // авто-рост textarea
+  input.addEventListener('input', () => {
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+  });
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      form.dispatchEvent(new Event('submit'));
+    }
+  });
+
+  function bubble(role, text, opts = {}) {
+    const empty = log.querySelector('.empty');
+    if (empty) empty.remove();
+    const el = document.createElement('div');
+    el.className = 'm ' + role + (opts.pending ? ' pending' : '');
+    el.textContent = text;
+    if (opts.id) el.dataset.id = opts.id;
+    log.appendChild(el);
+    log.scrollTop = log.scrollHeight;
+    return el;
+  }
+
+  function snapshotCalc() {
+    // Захватываем текущие инпуты + вычисленные значения
+    const state = { inputs: {}, computed: {} };
+    document.querySelectorAll('#calc input[id]').forEach(i => {
+      const v = i.type === 'number' || i.type === 'range' ? parseFloat(i.value) : i.value;
+      state.inputs[i.id] = isNaN(v) ? i.value : v;
+    });
+    // Ключевые выводы из калькулятора
+    ['rRev','rRevUsd','rArpu','rEb','rEbY','rMargin','rClients',
+     'uTok','uVar','uContr','uCAC','uLTV','uLtvCac','uPayback',
+     'kRev','kEb','kYear','kCl','vMarkup'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) state.computed[id] = el.textContent.trim();
+    });
+    return state;
+  }
+
+  async function loadHistory() {
+    try {
+      const r = await fetch(API + '/history');
+      const { messages } = await r.json();
+      lastSeenCount = messages.length;
+      const replied = new Set(messages.filter(m => m.role === 'assistant').map(m => m.replyTo));
+      messages.forEach(m => {
+        if (m.role === 'user') {
+          bubble('user', m.content, { id: m.id });
+          if (!replied.has(m.id)) bubble('assistant', '…等待客服回复', { pending: true, id: 'p-' + m.id });
+        } else if (m.role === 'assistant') {
+          // убираем pending placeholder если был
+          const p = log.querySelector('[data-id="p-' + m.replyTo + '"]');
+          if (p) p.remove();
+          bubble('assistant', m.content);
+        }
+      });
+    } catch (e) {
+      console.warn('history load failed', e);
+    }
+  }
+
+  async function pollFor(id) {
+    while (true) {
+      try {
+        const r = await fetch(API + '/poll?id=' + encodeURIComponent(id) + '&timeout=25');
+        const data = await r.json();
+        if (data.ready) {
+          const p = log.querySelector('[data-id="p-' + id + '"]');
+          if (p) p.remove();
+          bubble('assistant', data.reply.content);
+          if (!isOpen()) btn.classList.add('has-new');
+          return;
+        }
+      } catch (e) {
+        await new Promise(r => setTimeout(r, 2000));
+      }
+    }
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const text = input.value.trim();
+    if (!text) return;
+    send.disabled = true;
+    try {
+      const r = await fetch(API + '/ask', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: text, calcState: snapshotCalc() }),
+      });
+      const { id, error } = await r.json();
+      if (error) { alert('错误: ' + error); return; }
+      bubble('user', text, { id });
+      bubble('assistant', '…等待客服回复', { pending: true, id: 'p-' + id });
+      input.value = '';
+      input.style.height = 'auto';
+      pollFor(id);
+    } finally {
+      send.disabled = false;
+      input.focus();
+    }
+  });
+
+  loadHistory();
+})();
+</script>
+
+<!-- ============= TYPEWRITER for hero h1 ============= -->
+<style>
+  #hero-h1{ min-height: 1.1em; }
+  .tw-caret{
+    display: inline-block; width: .12em; height: .9em;
+    background: currentColor; vertical-align: -0.08em; margin-left: 2px;
+    animation: tw-blink 1s steps(2) infinite;
+  }
+  @keyframes tw-blink { 50% { opacity: 0; } }
+  @media (prefers-reduced-motion: reduce){
+    .tw-caret{ animation: none; }
+  }
+</style>
+<script>
+(function(){
+  const el = document.getElementById("hero-h1");
+  if (!el) return;
+  const final = el.dataset.final || "";
+  // Tokenize into [{type:'tag',content}, {type:'char',content}]
+  const tokens = [];
+  let i = 0;
+  while (i < final.length) {
+    if (final[i] === "<") {
+      const end = final.indexOf(">", i);
+      if (end < 0) break;
+      tokens.push({ type: "tag", content: final.substring(i, end + 1) });
+      i = end + 1;
+    } else {
+      tokens.push({ type: "char", content: final[i] });
+      i++;
+    }
+  }
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduced) {
+    el.innerHTML = final + '<span class="tw-caret" aria-hidden="true"></span>';
+    return;
+  }
+  // Build a writer + caret
+  el.innerHTML = '<span id="hero-h1-text"></span><span class="tw-caret" aria-hidden="true"></span>';
+  const writer = document.getElementById("hero-h1-text");
+  let html = "";
+  let idx = 0;
+  function step(){
+    while (idx < tokens.length) {
+      const t = tokens[idx++];
+      html += t.content;
+      if (t.type === "char") {
+        writer.innerHTML = html;
+        // randomize delay slightly per char for natural feel
+        const delay = t.content === " " ? 30 : Math.random() * 36 + 32;
+        setTimeout(step, delay);
+        return;
+      }
+    }
+    writer.innerHTML = html;
+  }
+  // Small initial pause so user catches the start of the animation
+  setTimeout(step, 350);
+})();
+</script>
+</body>
+</html>
